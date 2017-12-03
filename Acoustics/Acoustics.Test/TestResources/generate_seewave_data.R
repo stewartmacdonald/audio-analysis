@@ -1,10 +1,12 @@
 library(tuneR)
 library(seewave)
+library(jsonlite)
 
-test.file <- c("whip bird.wav")
+test.file <- c("whip bird2.wav")
 seewave.version <- info$otherPkgs$seewave$Version
 
 commands <- c(
+  'Im(hilbert(a))',
   'env(a, envt="hil")',
   'env(a, envt="abs")',
   'env(a, envt="hil", msmooth=c(10,50))',
@@ -41,4 +43,4 @@ run_tests <- function (test.file, commands) {
 
 all.results <- run_tests(test.file, commands)
 
-write.csv(all.results, file='seewave_data.csv')
+jsonlite::write_json(all.results, path='seewave_data.json', auto_unbox = TRUE)
