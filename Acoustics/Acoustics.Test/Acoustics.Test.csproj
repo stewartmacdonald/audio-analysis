@@ -317,6 +317,7 @@
     <Compile Include="AudioAnalysisTools\DSP\EnvelopeAndFftTests.cs" />
     <Compile Include="AudioAnalysisTools\DSP\FrequencyScaleTests.cs" />
     <Compile Include="AudioAnalysisTools\DSP\NoiseRemovalTests.cs" />
+    <Compile Include="AudioAnalysisTools\DSP\SeewaveTests.cs" />
     <Compile Include="AudioAnalysisTools\EventStatistics\EventStatisticsCalculateTests.cs" />
     <Compile Include="AudioAnalysisTools\Indices\ClusterIndexTest.cs" />
     <Compile Include="AudioAnalysisTools\Indices\IndexCalculateTest.cs" />
@@ -435,6 +436,8 @@
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\AudioAnalysis\packages\StyleCop.Analyzers.1.1.0-beta004\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\AudioAnalysis\packages\StyleCop.Analyzers.1.1.0-beta004\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\AudioAnalysis\packages\StyleCop.Analyzers.1.1.0-beta004\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
     <Analyzer Include="..\..\AudioAnalysis\packages\StyleCop.Analyzers.1.1.0-beta004\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
