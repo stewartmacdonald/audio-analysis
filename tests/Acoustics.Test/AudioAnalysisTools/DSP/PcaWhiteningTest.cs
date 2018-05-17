@@ -44,7 +44,11 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
         [TestMethod]
         public void TestPcaWhitening()
         {
-
+            // DO UNIT TESTING ONLY FOR PCAWHITENING
+            //var expected = new double[100, 100];
+            //var actual = PcaWhitening.Whitening(sonogram.Data);
+            //var actual = PcaWhitening.Whitening(sequentialPatchMatrix);
+            //var actual = PcaWhitening.Whitening(randomPatchMatrix);
             double[][] data =
             {
                 new[] { 2.5,  2.4 },
