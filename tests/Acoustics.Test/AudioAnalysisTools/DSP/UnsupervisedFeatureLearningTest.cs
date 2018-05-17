@@ -1,4 +1,4 @@
-﻿// <copyright file="PcaWhiteningTest.cs" company="QutEcoacoustics">
+﻿// <copyright file="UnsupervisedFeatureLearningTest.cs" company="QutEcoacoustics">
 // All code in this file and all associated files are the copyright and property of the QUT Ecoacoustics Research Group (formerly MQUTeR, and formerly QUT Bioacoustics Research Group).
 // </copyright>
 
@@ -35,15 +35,15 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
         public void TestFeatureLearning()
         {
             var outputDir = this.outputDirectory;
-            var folderPath =
-                PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening\random_audio_segments\1192_1000");
-            var resultDir = PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening");
-            //var resultDir = PathHelper.ResolveAssetPath("PcaWhitening");
+            var resultDir = PathHelper.ResolveAssetPath("FeatureLearning");
+            var folderPath = Path.Combine(resultDir, "random_audio_segments");
+            //PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening\random_audio_segments\1192_1000");
+            //var resultDir = PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening");
             var outputMelImagePath = Path.Combine(resultDir, "MelScaleSpectrogram.png");
             var outputNormMelImagePath = Path.Combine(resultDir, "NormalizedMelScaleSpectrogram.png");
             var outputNoiseReducedMelImagePath = Path.Combine(resultDir, "NoiseReducedMelSpectrogram.png");
             var outputReSpecImagePath = Path.Combine(resultDir, "ReconstrcutedSpectrogram.png");
-            var outputClusterImagePath = Path.Combine(resultDir, "Clusters.bmp");
+            //var outputClusterImagePath = Path.Combine(resultDir, "Clusters.bmp");
 
             //+++++++++++++++++++++++++++++++++++++++++++++++++patch sampling from 1000 random 1-min recordings from Gympie
 
@@ -145,11 +145,16 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 double[,] patchMatrix = randomPatches[i];
                 //Apply PCA Whitening
-                //var actual = PcaWhitening.Whitening(patchMatrix);
+                var actual = PcaWhitening.Whitening(patchMatrix);
                 //Do k-means clustering
-                //var clusteringOutput = KmeansClustering.Clustering(actual.Item2, noOfClusters);
-                var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters);
-                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusteringOutput.Item2);
+                string pathToClusterCsvFile = Path.Combine(resultDir, "ClusterCentroids" + i.ToString() + ".csv");
+                var clusteringOutput = KmeansClustering.Clustering(actual.Item2, noOfClusters, pathToClusterCsvFile);
+                //var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
+
+                //sorting clsuters based on size and output it to a csv file
+                string pathToClusterSizeCsvFile = Path.Combine(resultDir, "ClusterSize" + i.ToString() + ".csv");
+                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusteringOutput.Item2, pathToClusterSizeCsvFile);
+
                 //Draw cluster image directly from clustering output
                 List<KeyValuePair<int, double[]>> list = clusteringOutput.Item1.ToList();
                 double[][] centroids = new double[list.Count][];
@@ -189,7 +194,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
                 var clusterImage = ImageTools.DrawMatrixWithoutNormalisation(mergedCentroidMatrix);
                 clusterImage.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                clusterImage.Save(outputClusterImagePath, ImageFormat.Bmp);
+                //clusterImage.Save(outputClusterImagePath, ImageFormat.Bmp);
 
                 var outputClusteringImage = Path.Combine(resultDir, "ClustersWithGrid" + i.ToString() + ".bmp");
                 //Image bmp = ImageTools.ReadImage2Bitmap(filename);
