@@ -23,14 +23,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
     [TestClass]
     public class UnsupervisedFeatureLearningTest
     {
-        private DirectoryInfo outputDirectory;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            this.outputDirectory = PathHelper.GetTempDir();
-        }
-
         /*
         <summary>
         This method will be used in IAnalyser
