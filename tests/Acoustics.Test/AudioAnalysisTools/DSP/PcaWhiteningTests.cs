@@ -123,7 +123,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             int rows = sonogram.Data.GetLength(0);
             int cols = sonogram.Data.GetLength(1);
             int patchWidth = cols;
-            int patchHeight = 2;
+            int patchHeight = 1;
             int numberOfPatches = (rows / patchHeight) * (cols / patchWidth);
             var sequentialPatches = PatchSampling.GetPatches(sonogram.Data, patchWidth, patchHeight, numberOfPatches, "sequential");
             double[,] sequentialPatchMatrix = sequentialPatches.ToMatrix();
