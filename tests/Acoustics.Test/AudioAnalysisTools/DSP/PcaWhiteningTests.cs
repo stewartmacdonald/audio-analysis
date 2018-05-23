@@ -141,8 +141,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             respecImage.Save(outputImagePath, ImageFormat.Png);
 
             // DO UNIT TESTING
-            Assert.AreEqual(spectrogram.Data.GetLength(0), respecImage.Height);
-            Assert.AreEqual(spectrogram.Data.GetLength(1), respecImage.Width);
+            Assert.AreEqual(spectrogram.Data.GetLength(0), respecImage.Width);
+            Assert.AreEqual(spectrogram.Data.GetLength(1), respecImage.Height);
         }
     }
 }

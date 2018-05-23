@@ -222,8 +222,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             respecImage.Save(outputImagePath, ImageFormat.Png);
 
             // DO UNIT TESTING
-            Assert.AreEqual(targetSpec.GetLength(0), respecImage.Height);
-            Assert.AreEqual(targetSpec.GetLength(1), respecImage.Width);
+            Assert.AreEqual(targetSpec.GetLength(0), respecImage.Width);
+            Assert.AreEqual(targetSpec.GetLength(1), respecImage.Height);
         }
     }
 }
