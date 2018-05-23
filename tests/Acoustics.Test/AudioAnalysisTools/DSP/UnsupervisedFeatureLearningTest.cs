@@ -31,10 +31,15 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             this.outputDirectory = PathHelper.GetTempDir();
         }
 
+        /*
+        <summary>
+        This method will be used in IAnalyser
+        </summary>
+        */
         [TestMethod]
         public void TestFeatureLearning()
         {
-            var outputDir = this.outputDirectory;
+            //var outputDir = this.outputDirectory;
             var resultDir = PathHelper.ResolveAssetPath("FeatureLearning");
             var folderPath = Path.Combine(resultDir, "random_audio_segments");
             //PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening\random_audio_segments\1192_1000");
@@ -303,7 +308,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     List<double> std = new List<double>();
                     List<double> max = new List<double>();
                     double[,] sequencesOfFrames = sequencesOfFramesList.ToArray().ToMatrix();
-                    int len = sequencesOfFrames.GetLength(1);
+                    //int len = sequencesOfFrames.GetLength(1);
 
                     //Second, calculate mean, max, and standard deviation of six vectors element-wise
                     for (int j = 0; j < sequencesOfFrames.GetLength(1); j++)

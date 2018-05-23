@@ -20,7 +20,7 @@ namespace AudioAnalysisTools.DSP
 
             if (matrix == null)
             {
-                throw new ArgumentNullException("The input matrix is empty");
+                throw new ArgumentNullException();
             }
 
             // Step 1: convert matrix to a jagged array
@@ -36,7 +36,7 @@ namespace AudioAnalysisTools.DSP
 
             pca.Learn(jaggedArr);
 
-            double[][] output1 = pca.Transform(jaggedArr);
+            pca.Transform(jaggedArr);
 
             pca.ExplainedVariance = 0.95;
 
@@ -46,7 +46,7 @@ namespace AudioAnalysisTools.DSP
             int components = pca.Components.Count;
 
             //double[] eigneValues = pca.Eigenvalues; //sorted
-            int rows = projectedData.GetLength(0);
+            //int rows = projectedData.GetLength(0);
             int columns = projectedData.GetLength(1); //this is actually the number of output vectors before reversion
 
             // Step 3: revert a set of projected data into its original space

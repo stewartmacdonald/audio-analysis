@@ -18,7 +18,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
     using global::AudioAnalysisTools.WavTools;
     using global::TowseyLibrary;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using NeuralNets;
     using TestHelpers;
 
     [TestClass]
@@ -47,7 +46,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var recordingsPath = PathHelper.ResolveAssetPath("FeatureLearning");
             var folderPath = Path.Combine(recordingsPath, "random_audio_segments");
             var outputImagePath = Path.Combine(outputDir.FullName, "ReconstrcutedSpectrogram.png");
-            var outputClusterImagePath = Path.Combine(outputDir.FullName, "Clusters.bmp");
 
             //check whether there is any file in the folder/subfolders
             if (Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length == 0)
@@ -64,7 +62,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             int hertzInterval = 1000;
             FreqScaleType scaleType = FreqScaleType.Mel;
             var freqScale = new FrequencyScale(scaleType, nyquist, frameSize, finalBinCount, hertzInterval);
-            var fst = freqScale.ScaleType;
 
             var sonoConfig = new SonogramConfig
             {
@@ -128,7 +125,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
             //convert list of random patches matrices to one matrix
             int noOfClusters = 32;
-            List<double[][]> allBandsCentroids = new List<double[][]>();
+            //List<double[][]> allBandsCentroids = new List<double[][]>();
             List<KMeansClusterCollection> allClusteringOutput = new List<KMeansClusterCollection>();
 
             for (int i = 0; i < randomPatches.Count; i++)
@@ -152,7 +149,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     centroids[j] = listCluster[j].Value;
                 }
 
-                allBandsCentroids.Add(centroids);
+                //allBandsCentroids.Add(centroids);
                 allClusteringOutput.Add(clusteringOutput.Item3);
 
                 List<double[,]> allCentroids = new List<double[,]>();
@@ -222,8 +219,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             respecImage.Save(outputImagePath, ImageFormat.Png);
 
             // DO UNIT TESTING
-            Assert.AreEqual(targetSpec.GetLength(0), respecImage.Width);
-            Assert.AreEqual(targetSpec.GetLength(1), respecImage.Height);
+            Assert.AreEqual(targetSpec.GetLength(0), sonogram2.Data.GetLength(0));
+            Assert.AreEqual(targetSpec.GetLength(1), sonogram2.Data.GetLength(1));
         }
     }
 }

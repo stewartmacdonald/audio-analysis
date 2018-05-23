@@ -120,10 +120,10 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             sonogram.Data = dataMatrix;
 
             // Do Patch Sampling
-            int patchWidth = 16;
-            int patchHeight = 16;
             int rows = sonogram.Data.GetLength(0);
             int cols = sonogram.Data.GetLength(1);
+            int patchWidth = cols;
+            int patchHeight = 2;
             int numberOfPatches = (rows / patchHeight) * (cols / patchWidth);
             var sequentialPatches = PatchSampling.GetPatches(sonogram.Data, patchWidth, patchHeight, numberOfPatches, "sequential");
             double[,] sequentialPatchMatrix = sequentialPatches.ToMatrix();
@@ -141,8 +141,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             respecImage.Save(outputImagePath, ImageFormat.Png);
 
             // DO UNIT TESTING
-            Assert.AreEqual(spectrogram.Data.GetLength(0), respecImage.Width);
-            Assert.AreEqual(spectrogram.Data.GetLength(1), respecImage.Height);
+            Assert.AreEqual(spectrogram.Data.GetLength(0), sonogram.Data.GetLength(0));
+            Assert.AreEqual(spectrogram.Data.GetLength(1), sonogram.Data.GetLength(1));
         }
     }
 }
