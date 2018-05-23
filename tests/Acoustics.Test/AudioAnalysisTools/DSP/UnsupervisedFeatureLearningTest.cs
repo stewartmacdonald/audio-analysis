@@ -144,14 +144,16 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             for (int i = 0; i < randomPatches.Count; i++)
             {
                 double[,] patchMatrix = randomPatches[i];
+
                 //Apply PCA Whitening
-                var actual = PcaWhitening.Whitening(patchMatrix);
+                var whitenedSpectrogram = PcaWhitening.Whitening(patchMatrix);
+
                 //Do k-means clustering
                 string pathToClusterCsvFile = Path.Combine(resultDir, "ClusterCentroids" + i.ToString() + ".csv");
-                var clusteringOutput = KmeansClustering.Clustering(actual.Item2, noOfClusters, pathToClusterCsvFile);
+                var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Item2, noOfClusters, pathToClusterCsvFile);
                 //var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
 
-                //sorting clsuters based on size and output it to a csv file
+                //sorting clusters based on size and output it to a csv file
                 string pathToClusterSizeCsvFile = Path.Combine(resultDir, "ClusterSize" + i.ToString() + ".csv");
                 int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusteringOutput.Item2, pathToClusterSizeCsvFile);
 
@@ -164,14 +166,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     centroids[j] = list[j].Value;
                 }
 
-                //****
                 allBandsCentroids.Add(centroids);
                 allClusteringOutput.Add(clusteringOutput.Item3);
 
                 List<double[,]> allCentroids = new List<double[,]>();
                 for (int k = 0; k < centroids.Length; k++)
                 {
-                    //convert each centroid to a matrix (4-by-128) in order of cluster ID
+                    //convert each centroid to a matrix in order of cluster ID
                     //double[,] cent = PatchSampling.Array2Matrix(centroids[i], patchWidth, patchHeight, "column");
                     //OR: in order of cluster size
                     double[,] cent = PatchSampling.Array2Matrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");

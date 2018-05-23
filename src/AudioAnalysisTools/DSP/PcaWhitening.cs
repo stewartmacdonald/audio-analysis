@@ -15,16 +15,16 @@ namespace AudioAnalysisTools.DSP
         //that is used to to transform the data into the new feature subspace.
         //in Accord.net, this matrix is called "ComponentVectors", which its columns contain the
         //principle components, known as Eigenvectors.
-        public static Tuple<double[,], double[,], double[,], int> Whitening(double[,] spectrogram)
+        public static Tuple<double[,], double[,], double[,], int> Whitening(double[,] matrix)
         {
 
-            if (spectrogram == null)
+            if (matrix == null)
             {
-                throw new ArgumentNullException("spectrogram");
+                throw new ArgumentNullException("The input matrix is empty");
             }
 
             // Step 1: convert matrix to a jagged array
-            double[][] jaggedArr = spectrogram.ToJagged();
+            double[][] jaggedArr = matrix.ToJagged();
 
             // Step 2: do PCA whitening
             var pca = new PrincipalComponentAnalysis()
@@ -56,7 +56,7 @@ namespace AudioAnalysisTools.DSP
 
             //Build Projection Matrix
             //To do so, we need eigenVectors, and the number of columns of the projected data
-            double[,] projectionMatrix = GetProjectionMatrix(eigenVectors, projectedData.GetLength(1));
+            double[,] projectionMatrix = GetProjectionMatrix(eigenVectors, columns);
 
             //write the projection matrix to disk
             /*
@@ -76,25 +76,25 @@ namespace AudioAnalysisTools.DSP
         }
 
         // RMS Normalization
-        public static double[,] RmsNormalization(double[,] spectrogram)
+        public static double[,] RmsNormalization(double[,] matrix)
         {
             double s = 0;
-            double[,] normSpec = new double[spectrogram.GetLength(0), spectrogram.GetLength(1)];
-            for (int i = 0; i < spectrogram.GetLength(0); i++)
+            double[,] normSpec = new double[matrix.GetLength(0), matrix.GetLength(1)];
+            for (int i = 0; i < matrix.GetLength(0); i++)
             {
-                for (int j = 0; j < spectrogram.GetLength(1); j++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    s += spectrogram[i, j] * spectrogram[i, j];
+                    s += matrix[i, j] * matrix[i, j];
                 }
             }
 
-            double rms = Math.Sqrt(s / (spectrogram.GetLength(0) * spectrogram.GetLength(1)));
+            double rms = Math.Sqrt(s / (matrix.GetLength(0) * matrix.GetLength(1)));
 
-            for (int i = 0; i < spectrogram.GetLength(0); i++)
+            for (int i = 0; i < matrix.GetLength(0); i++)
             {
-                for (int j = 0; j < spectrogram.GetLength(1); j++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    normSpec[i, j] = spectrogram[i, j] / rms;
+                    normSpec[i, j] = matrix[i, j] / rms;
                 }
             }
 
@@ -190,6 +190,7 @@ namespace AudioAnalysisTools.DSP
             return reconsSpec;
         }
 
+        //Median Noise Reduction
         public static double[,] NoiseReduction(double[,] matrix)
         {
             double[,] nrm = matrix;

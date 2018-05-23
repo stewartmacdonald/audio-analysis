@@ -98,7 +98,7 @@ namespace AudioAnalysisTools.DSP
                 //remove null or empty values from the array
                 line = line.Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
-                //the first element of the "line" array is the cluster ID, and the rest centroid vector!
+                //the first element of the "line" array is the cluster ID, and the rest centroid vector
                 //copy the centroid vector line[1] to line[line.length-2] to a new array called "centroid"
                 string[] centroid = new string[line.Length - 1];
                 Array.Copy(line, 1, centroid, 0, line.Length - 1);
