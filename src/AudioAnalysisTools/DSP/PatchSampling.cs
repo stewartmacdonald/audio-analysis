@@ -161,7 +161,7 @@ namespace AudioAnalysisTools.DSP
         }
 
         /// <summary>
-        /// converts a list<double[,]> to a matrix.
+        /// converts a list of 2D array to a matrix.
         /// construct the original matrix from a set of sequential patches
         /// </summary>
         public static double[,] ConvertList2Matrix(List<double[,]> list, int colSize, int patchWidth, int patchHeight)

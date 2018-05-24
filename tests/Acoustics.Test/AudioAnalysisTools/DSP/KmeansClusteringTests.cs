@@ -162,7 +162,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 {
                     // convert each centroid to a matrix in order of cluster ID
                     // OR: in order of cluster size
-                    double[,] cent = PatchSampling.Array2Matrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
+                    double[,] cent = PatchSampling.ArrayToMatrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
 
                     // normalize each centroid
                     double[,] normCent = DataTools.normalise(cent);
