@@ -31,12 +31,10 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             PathHelper.DeleteTempDir(this.outputDirectory);
         }
 
-        /*
-        <summary>
-        METHOD TO CHECK IF Default PCA Whitening IS WORKING
-        Check it on standard one minute recording.
-        </summary>
-        */
+        /// <summary>
+        /// METHOD TO CHECK IF Default PCA Whitening IS WORKING
+        /// Check it on standard one minute recording.
+        /// </summary>
         [TestMethod]
         public void PcaWhiteningDefault()
         {
@@ -73,18 +71,15 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var whitenedSpectrogram = PcaWhitening.Whitening(sonogram.Data);
 
             // DO UNIT TESTING
-            //check if the dimensions of the reverted spectrogram (second output of the pca whitening) is equal to the input matrix
+            // check if the dimensions of the reverted spectrogram (second output of the pca whitening) is equal to the input matrix
             Assert.AreEqual(whitenedSpectrogram.Item2.GetLength(0), sonogram.Data.GetLength(0));
             Assert.AreEqual(whitenedSpectrogram.Item2.GetLength(1), sonogram.Data.GetLength(1));
         }
 
-        /*
-        <summary>
-        METHOD TO CHECK IF RECONSTRUCTING SPECTROGRAM AFTER APPLYING PATCH SAMPLING AND PCA WHITENING IS WORKING
-        Check it on standard one minute recording.
-        </summary>
-        */
-
+        /// <summary>
+        /// METHOD TO CHECK IF RECONSTRUCTING SPECTROGRAM AFTER APPLYING PATCH SAMPLING AND PCA WHITENING IS WORKING
+        /// Check it on standard one minute recording.
+        /// </summary>
         [TestMethod]
         public void TestPcaWhitening()
         {

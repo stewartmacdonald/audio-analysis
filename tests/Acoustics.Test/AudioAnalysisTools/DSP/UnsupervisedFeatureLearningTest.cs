@@ -12,6 +12,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
     using System.Linq;
     using Accord.MachineLearning;
     using Accord.Math;
+    using Acoustics.Shared.Csv;
     using global::AudioAnalysisTools.DSP;
     using global::AudioAnalysisTools.StandardSpectrograms;
     using global::AudioAnalysisTools.WavTools;
@@ -23,39 +24,37 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
     [TestClass]
     public class UnsupervisedFeatureLearningTest
     {
-        /*
-        <summary>
-        This method will be used in IAnalyser
-        </summary>
-        */
+        /// <summary>
+        /// This method will be used in IAnalyser
+        /// </summary>
         [TestMethod]
         public void TestFeatureLearning()
         {
-            //var outputDir = this.outputDirectory;
+            // var outputDir = this.outputDirectory;
             var resultDir = PathHelper.ResolveAssetPath("FeatureLearning");
             var folderPath = Path.Combine(resultDir, "random_audio_segments");
-            //PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening\random_audio_segments\1192_1000");
-            //var resultDir = PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening");
+            // PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening\random_audio_segments\1192_1000");
+            // var resultDir = PathHelper.ResolveAssetPath(@"C:\Users\kholghim\Mahnoosh\PcaWhitening");
             var outputMelImagePath = Path.Combine(resultDir, "MelScaleSpectrogram.png");
             var outputNormMelImagePath = Path.Combine(resultDir, "NormalizedMelScaleSpectrogram.png");
             var outputNoiseReducedMelImagePath = Path.Combine(resultDir, "NoiseReducedMelSpectrogram.png");
             var outputReSpecImagePath = Path.Combine(resultDir, "ReconstrcutedSpectrogram.png");
-            //var outputClusterImagePath = Path.Combine(resultDir, "Clusters.bmp");
+            // var outputClusterImagePath = Path.Combine(resultDir, "Clusters.bmp");
 
-            //+++++++++++++++++++++++++++++++++++++++++++++++++patch sampling from 1000 random 1-min recordings from Gympie
+            // +++++++++++++++++++++++++++++++++++++++++++++++++patch sampling from 1000 random 1-min recordings from Gympie
 
-            //check whether there is any file in the folder/subfolders
+            // check whether there is any file in the folder/subfolders
             if (Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length == 0)
             {
                 throw new ArgumentException("The folder of recordings is empty...");
             }
 
-            //get the nyquist value from the first wav file in the folder of recordings
+            // get the nyquist value from the first wav file in the folder of recordings
             int nq = new AudioRecording(Directory.GetFiles(folderPath, "*.wav")[0]).Nyquist;
 
-            int nyquist = nq; //11025;
+            int nyquist = nq; // 11025;
             int frameSize = 1024;
-            int finalBinCount = 128; // 256; //100; //40; //200; //
+            int finalBinCount = 128; // 256; // 100; // 40; // 200; //
             int hertzInterval = 1000;
             FreqScaleType scaleType = FreqScaleType.Mel;
             var freqScale = new FrequencyScale(scaleType, nyquist, frameSize, finalBinCount, hertzInterval);
@@ -72,11 +71,11 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
             int noOfFreqBand = 4;
             int patchWidth = finalBinCount / noOfFreqBand; // when selecting patches from four different freq bands //
-            int patchHeight = 1; // 2; //4; // 16; // 6; //Frame size
-            int noOfRandomPatches = 80; // 40; //20; //30; // 100; //500; //
-            //int fileCount = Directory.GetFiles(folderPath, "*.wav").Length;
+            int patchHeight = 1; // 2; // 4; // 16; // 6; // Frame size
+            int noOfRandomPatches = 80; // 40; // 20; // 30; // 100; // 500; //
+            // int fileCount = Directory.GetFiles(folderPath, "*.wav").Length;
 
-            //Define variable number of "randomPatch" lists based on "noOfFreqBand"
+            // Define variable number of "randomPatch" lists based on "noOfFreqBand"
             Dictionary<string, List<double[,]>> randomPatchLists = new Dictionary<string, List<double[,]>>();
             for (int i = 0; i < noOfFreqBand; i++)
             {
@@ -100,7 +99,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 FileInfo f = filePath.ToFileInfo();
 
-                //process the wav file if it is not empty
+                // process the wav file if it is not empty
                 if (f.Length != 0)
                 {
                     var recording = new AudioRecording(filePath);
@@ -112,13 +111,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     sonogram.Data = PcaWhitening.RmsNormalization(sonogram.Data);
 
                     // DO NOISE REDUCTION
-                    //sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
+                    // sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
                     sonogram.Data = PcaWhitening.NoiseReduction(sonogram.Data);
 
-                    //creating matrices from different freq bands of the source spectrogram
+                    // creating matrices from different freq bands of the source spectrogram
                     List<double[,]> allSubmatrices = PatchSampling.GetFreqBandMatrices(sonogram.Data, noOfFreqBand);
 
-                    //Second: selecting random patches from each freq band matrix and add them to the corresponding patch list
+                    // Second: selecting random patches from each freq band matrix and add them to the corresponding patch list
                     int count = 0;
                     while (count < allSubmatrices.Count)
                     {
@@ -133,8 +132,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 randomPatches.Add(PatchSampling.ListOf2DArrayToOne2DArray(randomPatchLists[key]));
             }
 
-            //convert list of random patches matrices to one matrix
-            int noOfClusters = 256; // 128; //64; //32; //10; //50;
+            // convert list of random patches matrices to one matrix
+            int noOfClusters = 256; // 128; // 64; // 32; // 10; // 50;
             List<double[][]> allBandsCentroids = new List<double[][]>();
             List<KMeansClusterCollection> allClusteringOutput = new List<KMeansClusterCollection>();
 
@@ -142,19 +141,23 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 double[,] patchMatrix = randomPatches[i];
 
-                //Apply PCA Whitening
+                // Apply PCA Whitening
                 var whitenedSpectrogram = PcaWhitening.Whitening(patchMatrix);
 
-                //Do k-means clustering
+                // Do k-means clustering
                 string pathToClusterCsvFile = Path.Combine(resultDir, "ClusterCentroids" + i.ToString() + ".csv");
                 var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Item2, noOfClusters, pathToClusterCsvFile);
-                //var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
+                // var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
 
-                //sorting clusters based on size and output it to a csv file
+                // sorting clusters based on size and output it to a csv file
+                Dictionary<int, double> clusterIdSize = clusteringOutput.Item2;
+                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusterIdSize);
+
+                // Write cluster ID and size to a CSV file
                 string pathToClusterSizeCsvFile = Path.Combine(resultDir, "ClusterSize" + i.ToString() + ".csv");
-                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusteringOutput.Item2, pathToClusterSizeCsvFile);
+                Csv.WriteToCsv(pathToClusterSizeCsvFile.ToFileInfo(), clusterIdSize);
 
-                //Draw cluster image directly from clustering output
+                // Draw cluster image directly from clustering output
                 List<KeyValuePair<int, double[]>> list = clusteringOutput.Item1.ToList();
                 double[][] centroids = new double[list.Count][];
 
@@ -169,42 +172,42 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 List<double[,]> allCentroids = new List<double[,]>();
                 for (int k = 0; k < centroids.Length; k++)
                 {
-                    //convert each centroid to a matrix in order of cluster ID
-                    //double[,] cent = PatchSampling.Array2Matrix(centroids[i], patchWidth, patchHeight, "column");
-                    //OR: in order of cluster size
-                    double[,] cent = PatchSampling.Array2Matrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
+                    // convert each centroid to a matrix in order of cluster ID
+                    // double[,] cent = PatchSampling.Array2Matrix(centroids[i], patchWidth, patchHeight, "column");
+                    // OR: in order of cluster size
+                    double[,] cent = PatchSampling.ArrayToMatrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
 
-                    //normalize each centroid
+                    // normalize each centroid
                     double[,] normCent = DataTools.normalise(cent);
 
-                    //add a row of zero to each centroid
+                    // add a row of zero to each centroid
                     double[,] cent2 = PatchSampling.AddRow(normCent).ToMatrix();
 
                     allCentroids.Add(cent2);
                 }
 
-                //concatenate all centroids
+                // concatenate all centroids
                 double[,] mergedCentroidMatrix = PatchSampling.ListOf2DArrayToOne2DArray(allCentroids);
 
-                //Draw clusters
-                //int gridInterval = 1000;
-                //var freqScale = new FrequencyScale(FreqScaleType.Mel, nyquist, frameSize, finalBinCount, gridInterval);
+                // Draw clusters
+                // int gridInterval = 1000;
+                // var freqScale = new FrequencyScale(FreqScaleType.Mel, nyquist, frameSize, finalBinCount, gridInterval);
 
                 var clusterImage = ImageTools.DrawMatrixWithoutNormalisation(mergedCentroidMatrix);
                 clusterImage.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                //clusterImage.Save(outputClusterImagePath, ImageFormat.Bmp);
+                // clusterImage.Save(outputClusterImagePath, ImageFormat.Bmp);
 
                 var outputClusteringImage = Path.Combine(resultDir, "ClustersWithGrid" + i.ToString() + ".bmp");
-                //Image bmp = ImageTools.ReadImage2Bitmap(filename);
+                // Image bmp = ImageTools.ReadImage2Bitmap(filename);
                 FrequencyScale.DrawFrequencyLinesOnImage((Bitmap)clusterImage, freqScale, includeLabels: false);
                 clusterImage.Save(outputClusteringImage);
             }
 
             //+++++++++++++++++++++++++++++++++++++++++++++++++++++Processing and generating features for the target spectrogram
             var recording2Path = PathHelper.ResolveAsset("Recordings", "BAC2_20071008-085040.wav");
-            //var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_353972_20160303_055854_60_0.wav");    // folder with 1000 files
-            //var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_353887_20151230_042625_60_0.wav");    // folder with 1000 files
-            //var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_354744_20151018_053923_60_0.wav");  // folder with 100 files
+            // var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_353972_20160303_055854_60_0.wav");    // folder with 1000 files
+            // var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_353887_20151230_042625_60_0.wav");    // folder with 1000 files
+            // var recording2Path = PathHelper.ResolveAsset(folderPath, "gympie_np_1192_354744_20151018_053923_60_0.wav");  // folder with 100 files
 
             var recording2 = new AudioRecording(recording2Path);
             var sonogram2 = new SpectrogramStandard(sonoConfig, recording2.WavReader);
@@ -213,17 +216,17 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var image = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "MELSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
             image.Save(outputMelImagePath, ImageFormat.Png);
 
-            //Do RMS normalization
+            // Do RMS normalization
             sonogram2.Data = PcaWhitening.RmsNormalization(sonogram2.Data);
             var image2 = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "NORMALISEDMELSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
             image2.Save(outputNormMelImagePath, ImageFormat.Png);
 
-            //NOISE REDUCTION
+            // NOISE REDUCTION
             sonogram2.Data = PcaWhitening.NoiseReduction(sonogram2.Data);
             var image3 = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "NOISEREDUCEDMELSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
             image3.Save(outputNoiseReducedMelImagePath, ImageFormat.Png);
 
-            //extracting sequential patches from the target spectrogram
+            // extracting sequential patches from the target spectrogram
             List<double[,]> allSubmatrices2 = PatchSampling.GetFreqBandMatrices(sonogram2.Data, noOfFreqBand);
             double[][,] matrices2 = allSubmatrices2.ToArray();
             List<double[,]> allSequentialPatchMatrix = new List<double[,]>();
@@ -235,7 +238,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 allSequentialPatchMatrix.Add(sequentialPatches.ToMatrix());
             }
 
-            //+++++++++++++++++++++++++++++++++++Feature Transformation
+            // +++++++++++++++++++++++++++++++++++Feature Transformation
             // to do the feature transformation, we normalize centroids and
             // sequential patches from the input spectrogram to unit length
             // Then, we calculate the dot product of each patch with the centroids' matrix
@@ -243,7 +246,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             List<double[][]> allNormCentroids = new List<double[][]>();
             for (int i = 0; i < allBandsCentroids.Count; i++)
             {
-                //double check the index of the list
+                // double check the index of the list
                 double[][] normCentroids = new double[allBandsCentroids.ToArray()[i].GetLength(0)][];
                 for (int j = 0; j < allBandsCentroids.ToArray()[i].GetLength(0); j++)
                 {
@@ -266,9 +269,9 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 allFeatureTransVectors.Add(featureTransVectors);
             }
 
-            //+++++++++++++++++++++++++++++++++++Feature Transformation
+            // +++++++++++++++++++++++++++++++++++Feature Transformation
 
-            //+++++++++++++++++++++++++++++++++++Temporal Summarization
+            // +++++++++++++++++++++++++++++++++++Temporal Summarization
             // The resolution to generate features is 1 second
             // Each 6 patches form 1 second, when patches are formed by a sequence of four frames
             // for each 6 patch, we generate 3 vectors of mean, std, and max
@@ -289,7 +292,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 int c = 0;
                 while (c + noFrames < freqBandFeature.GetLength(0))
                 {
-                    //First, make a list of patches that would be equal to 1 second
+                    // First, make a list of patches that would be equal to 1 second
                     List<double[]> sequencesOfFramesList = new List<double[]>();
                     for (int i = c; i < c + noFrames; i++)
                     {
@@ -300,9 +303,9 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     List<double> std = new List<double>();
                     List<double> max = new List<double>();
                     double[,] sequencesOfFrames = sequencesOfFramesList.ToArray().ToMatrix();
-                    //int len = sequencesOfFrames.GetLength(1);
+                    // int len = sequencesOfFrames.GetLength(1);
 
-                    //Second, calculate mean, max, and standard deviation of six vectors element-wise
+                    // Second, calculate mean, max, and standard deviation of six vectors element-wise
                     for (int j = 0; j < sequencesOfFrames.GetLength(1); j++)
                     {
                         double[] temp = new double[sequencesOfFrames.GetLength(0)];
@@ -327,17 +330,17 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 allStdFeatureVectors.Add(stdFeatureVectors.ToArray().ToMatrix());
             }
 
-            //+++++++++++++++++++++++++++++++++++Temporal Summarization
+            // +++++++++++++++++++++++++++++++++++Temporal Summarization
 
-            //++++++++++++++++++++++++++++++++++Writing features to file
-            //First, concatenate mean, max, std for each second.
-            //Then write to CSV file.
+            // ++++++++++++++++++++++++++++++++++Writing features to file
+            // First, concatenate mean, max, std for each second.
+            // Then write to CSV file.
 
             for (int j = 0; j < allMeanFeatureVectors.Count; j++)
             {
                 var outputFeatureFile = Path.Combine(resultDir, "FeatureVectors" + j.ToString() + ".csv");
 
-                //creating the header for CSV file
+                // creating the header for CSV file
                 List<string> header = new List<string>();
                 for (int i = 0; i < allMeanFeatureVectors.ToArray()[j].GetLength(1); i++)
                 {
@@ -354,7 +357,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     header.Add("max" + i.ToString());
                 }
 
-                //concatenating mean, std, and max vector together for each 1 second
+                // concatenating mean, std, and max vector together for each 1 second
                 List<double[]> featureVectors = new List<double[]>();
                 for (int i = 0; i < allMeanFeatureVectors.ToArray()[j].ToJagged().GetLength(0); i++)
                 {
@@ -366,10 +369,10 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     featureVectors.Add(featureVector);
                 }
 
-                //writing feature vectors to CSV file
+                // writing feature vectors to CSV file
                 using (StreamWriter file = new StreamWriter(outputFeatureFile))
                 {
-                    //writing the header to CSV file
+                    // writing the header to CSV file
                     foreach (var entry in header.ToArray())
                     {
                         file.Write(entry + ",");

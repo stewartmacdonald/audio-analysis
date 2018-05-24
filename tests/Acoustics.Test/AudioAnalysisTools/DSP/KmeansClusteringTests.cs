@@ -13,6 +13,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
     using System.Linq;
     using Accord.MachineLearning;
     using Accord.Math;
+    using Acoustics.Shared.Csv;
     using global::AudioAnalysisTools.DSP;
     using global::AudioAnalysisTools.StandardSpectrograms;
     using global::AudioAnalysisTools.WavTools;
@@ -47,13 +48,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var folderPath = Path.Combine(recordingsPath, "random_audio_segments");
             var outputImagePath = Path.Combine(outputDir.FullName, "ReconstrcutedSpectrogram.png");
 
-            //check whether there is any file in the folder/subfolders
+            // check whether there is any file in the folder/subfolders
             if (Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length == 0)
             {
                 throw new ArgumentException("The folder of recordings is empty. Test will fail!");
             }
 
-            //get the nyquist value from the first wav file in the folder of recordings
+            // get the nyquist value from the first wav file in the folder of recordings
             int nq = new AudioRecording(Directory.GetFiles(folderPath, "*.wav")[0]).Nyquist;
 
             int nyquist = nq;
@@ -77,7 +78,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             int patchHeight = 1;
             int noOfRandomPatches = 20;
 
-            //Define variable number of "randomPatch" lists based on "noOfFreqBand"
+            // Define variable number of "randomPatch" lists based on "noOfFreqBand"
             Dictionary<string, List<double[,]>> randomPatchLists = new Dictionary<string, List<double[,]>>();
             for (int i = 0; i < noOfFreqBand; i++)
             {
@@ -90,7 +91,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 FileInfo f = filePath.ToFileInfo();
 
-                //process the wav file if it is not empty
+                // process the wav file if it is not empty
                 if (f.Length != 0)
                 {
                     var recording = new AudioRecording(filePath);
@@ -102,13 +103,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     sonogram.Data = PcaWhitening.RmsNormalization(sonogram.Data);
 
                     // DO NOISE REDUCTION
-                    //sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
+                    // sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
                     sonogram.Data = PcaWhitening.NoiseReduction(sonogram.Data);
 
-                    //creating matrices from different freq bands of the source spectrogram
+                    // creating matrices from different freq bands of the source spectrogram
                     List<double[,]> allSubmatrices = PatchSampling.GetFreqBandMatrices(sonogram.Data, noOfFreqBand);
 
-                    //Second: selecting random patches from each freq band matrix and add them to the corresponding patch list
+                    // Second: selecting random patches from each freq band matrix and add them to the corresponding patch list
                     int count = 0;
                     while (count < allSubmatrices.Count)
                     {
@@ -123,24 +124,28 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 randomPatches.Add(PatchSampling.ListOf2DArrayToOne2DArray(randomPatchLists[key]));
             }
 
-            //convert list of random patches matrices to one matrix
+            // convert list of random patches matrices to one matrix
             int noOfClusters = 32;
-            //List<double[][]> allBandsCentroids = new List<double[][]>();
+            // List<double[][]> allBandsCentroids = new List<double[][]>();
             List<KMeansClusterCollection> allClusteringOutput = new List<KMeansClusterCollection>();
 
             for (int i = 0; i < randomPatches.Count; i++)
             {
                 double[,] patchMatrix = randomPatches[i];
 
-                //Do k-means clustering
+                // Do k-means clustering
                 string pathToClusterCsvFile = Path.Combine(outputDir.FullName, "ClusterCentroids" + i.ToString() + ".csv");
                 var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
 
-                //sorting clusters based on size and output it to a csv file
-                string pathToClusterSizeCsvFile = Path.Combine(outputDir.FullName, "ClusterSize" + i.ToString() + ".csv");
-                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusteringOutput.Item2, pathToClusterSizeCsvFile);
+                // sorting clusters based on size and output it to a csv file
+                Dictionary<int, double> clusterIdSize = clusteringOutput.Item2;
+                int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusterIdSize);
 
-                //Draw cluster image directly from clustering output
+                // Write cluster ID and size to a CSV file
+                string pathToClusterSizeCsvFile = Path.Combine(outputDir.FullName, "ClusterSize" + i.ToString() + ".csv");
+                Csv.WriteToCsv(pathToClusterSizeCsvFile.ToFileInfo(), clusterIdSize);
+
+                // Draw cluster image directly from clustering output
                 List<KeyValuePair<int, double[]>> listCluster = clusteringOutput.Item1.ToList();
                 double[][] centroids = new double[listCluster.Count][];
 
@@ -149,29 +154,29 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     centroids[j] = listCluster[j].Value;
                 }
 
-                //allBandsCentroids.Add(centroids);
+                // allBandsCentroids.Add(centroids);
                 allClusteringOutput.Add(clusteringOutput.Item3);
 
                 List<double[,]> allCentroids = new List<double[,]>();
                 for (int k = 0; k < centroids.Length; k++)
                 {
-                    //convert each centroid to a matrix in order of cluster ID
-                    //OR: in order of cluster size
+                    // convert each centroid to a matrix in order of cluster ID
+                    // OR: in order of cluster size
                     double[,] cent = PatchSampling.Array2Matrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
 
-                    //normalize each centroid
+                    // normalize each centroid
                     double[,] normCent = DataTools.normalise(cent);
 
-                    //add a row of zero to each centroid
+                    // add a row of zero to each centroid
                     double[,] cent2 = PatchSampling.AddRow(normCent).ToMatrix();
 
                     allCentroids.Add(cent2);
                 }
 
-                //concatenate all centroids
+                // concatenate all centroids
                 double[,] mergedCentroidMatrix = PatchSampling.ListOf2DArrayToOne2DArray(allCentroids);
 
-                //Draw clusters
+                // Draw clusters
                 var clusterImage = ImageTools.DrawMatrixWithoutNormalisation(mergedCentroidMatrix);
                 clusterImage.RotateFlip(RotateFlipType.Rotate270FlipNone);
 
@@ -186,13 +191,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var sonogram2 = new SpectrogramStandard(sonoConfig, recording2.WavReader);
             var targetSpec = sonogram2.Data;
 
-            //Do RMS normalization
+            // Do RMS normalization
             sonogram2.Data = PcaWhitening.RmsNormalization(sonogram2.Data);
 
-            //NOISE REDUCTION
+            // NOISE REDUCTION
             sonogram2.Data = PcaWhitening.NoiseReduction(sonogram2.Data);
 
-            //extracting sequential patches from the target spectrogram
+            // extracting sequential patches from the target spectrogram
             List<double[,]> allSubmatrices2 = PatchSampling.GetFreqBandMatrices(sonogram2.Data, noOfFreqBand);
             double[][,] matrices2 = allSubmatrices2.ToArray();
             List<double[,]> allSequentialPatchMatrix = new List<double[,]>();

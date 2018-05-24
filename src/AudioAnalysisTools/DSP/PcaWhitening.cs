@@ -11,13 +11,14 @@ namespace AudioAnalysisTools.DSP
 
     public static class PcaWhitening
     {
-        //Outputting the Projection Matrix, whitened matrix, eigen vectors, and the number of pca components
-        //that is used to to transform the data into the new feature subspace.
-        //in Accord.net, this matrix is called "ComponentVectors", which its columns contain the
-        //principle components, known as Eigenvectors.
-        public static Tuple<double[,], double[,], double[,], int> Whitening(double[,] matrix)
+        /// <summary>
+        /// Outputting the Projection Matrix, whitened matrix, eigen vectors, and the number of PCA components
+        /// that is used to to transform the data into the new feature subspace.
+        /// in Accord.net, this matrix is called "ComponentVectors", which its columns contain the
+        /// principle components, known as Eigenvectors.
+        /// </summary>
+        public static (double[,] projectionMatrix, double[,] reversion, double[,] eigenVectors, int components) Whitening(double[,] matrix)
         {
-
             if (matrix == null)
             {
                 throw new ArgumentNullException();
@@ -29,7 +30,7 @@ namespace AudioAnalysisTools.DSP
             // Step 2: do PCA whitening
             var pca = new PrincipalComponentAnalysis()
             {
-                //the "Center" method only subtracts the mean.
+                // the "Center" method only subtracts the mean.
                 Method = PrincipalComponentMethod.Center,
                 Whiten = true,
             };
@@ -45,22 +46,22 @@ namespace AudioAnalysisTools.DSP
             double[,] eigenVectors = pca.ComponentVectors.ToMatrix();
             int components = pca.Components.Count;
 
-            //double[] eigneValues = pca.Eigenvalues; //sorted
-            //int rows = projectedData.GetLength(0);
+            // double[] eigneValues = pca.Eigenvalues; //sorted
+            // int rows = projectedData.GetLength(0);
             int columns = projectedData.GetLength(1); //this is actually the number of output vectors before reversion
 
             // Step 3: revert a set of projected data into its original space
-            //the output of the "Revert(Double[][])" method in Accord did not make sense.
-            //however, we use its API to do so.
+            // the output of the "Revert(Double[][])" method in Accord did not make sense.
+            // however, we use its API to do so.
             double[,] reversion = Revert(projectedData, eigenVectors, components);
 
-            //Build Projection Matrix
-            //To do so, we need eigenVectors, and the number of columns of the projected data
+            // Build Projection Matrix
+            // To do so, we need eigenVectors, and the number of columns of the projected data
             double[,] projectionMatrix = GetProjectionMatrix(eigenVectors, columns);
 
-            //write the projection matrix to disk
+            // write the projection matrix to disk
             /*
-            //FIRST STEP: sort the eigenvectors based on the eigenvalue
+            // FIRST STEP: sort the eigenvectors based on the eigenvalue
             var eigPairs = new List<Tuple<double, double[]>>();
 
             for (int i = 0; i < eigneValues.GetLength(0); i++)
@@ -68,14 +69,16 @@ namespace AudioAnalysisTools.DSP
                 eigPairs.Add(Tuple.Create(Math.Abs(eigneValues[i]), GetColumn(eigenVectors, i)));
             }
 
-            //sort in descending order based on the eigenvalues
+            // sort in descending order based on the eigenvalues
             eigPairs.Sort((x, y) => y.Item1.CompareTo(x.Item1));
             */
 
-            return new Tuple<double[,], double[,], double[,], int>(projectionMatrix, reversion, eigenVectors, components);
+            return (projectionMatrix, reversion, eigenVectors, components);
         }
 
-        // RMS Normalization
+        /// <summary>
+        ///  RMS Normalization
+        /// </summary>
         public static double[,] RmsNormalization(double[,] matrix)
         {
             double s = 0;
@@ -101,8 +104,10 @@ namespace AudioAnalysisTools.DSP
             return normSpec;
         }
 
-        //retrieving a full column of a matrix
-        //colNo is the column index we want to access
+        /// <summary>
+        /// retrieving a full column of a matrix
+        /// colNo is the column index we want to access
+        /// </summary>
         public static double[] GetColumn(double[,] matrix, int colNo)
         {
             double[] col = new double[matrix.GetLength(0)];
@@ -114,8 +119,10 @@ namespace AudioAnalysisTools.DSP
             return col;
         }
 
-        //retrieving a full row of a matrix
-        //rowNo is the column index we want to access
+        /// <summary>
+        /// retrieving a full row of a matrix
+        /// rowNo is the column index we want to access
+        /// </summary>
         public static double[] GetRow(double[,] matrix, int rowNo)
         {
             double[] row = new double[matrix.GetLength(1)];
@@ -127,9 +134,11 @@ namespace AudioAnalysisTools.DSP
             return row;
         }
 
-        //Build the Projection Matrix
-        //To do so, we need eigenVectors
-        //and the number of columns of the projected data which is the number of outputs (principle components) used to transform the data
+        /// <summary>
+        /// Build the Projection Matrix
+        /// To do so, we need eigenVectors and the number of columns of the projected data
+        /// which is the number of outputs (principle components) used to transform the data
+        /// </summary>
         public static double[,] GetProjectionMatrix(double[,] eigenVector, int numberOfOuputs)
         {
             double[,] projMatrix = new double[eigenVector.GetLength(0), eigenVector.GetLength(1)];
@@ -150,14 +159,18 @@ namespace AudioAnalysisTools.DSP
             return projMatrix;
         }
 
-        //revert a set of projected data into its original space
-        //the output of the "Revert(Double[][])" method in Accord did not make sense.
-        //however, we use its API to do so.
+        /// <summary>
+        /// revert a set of projected data into its original space
+        /// the output of the "Revert(Double[][])" method in Accord did not make sense.
+        /// however, we use its API to do so.
+        /// </summary>
         public static double[,] Revert(double[,] projectedData, double[,] eigenVectors, int numberOfComponents)
         {
             int rows = projectedData.GetLength(0);
-            int columns = projectedData.GetLength(1); //this is actually the number of output vectors before reversion
-            //int components = pca.Components.Count;
+
+            // this is actually the number of output vectors before reversion
+            int columns = projectedData.GetLength(1); 
+            // int components = pca.Components.Count;
             double[,] reversion = new double[rows, numberOfComponents];
 
             for (int i = 0; i < numberOfComponents; i++)
@@ -174,7 +187,9 @@ namespace AudioAnalysisTools.DSP
             return reversion;
         }
 
-        //reconstruct the spectrogram using sequential patches and the projection matrix
+        /// <summary>
+        /// reconstruct the spectrogram using sequential patches and the projection matrix
+        /// </summary>
         public static double[,] ReconstructSpectrogram(double[,] projectionMatrix, double[,] sequentialPatchMatrix, double[,] eigenVectors, int numberOfComponents)
         {
             double[][] patches = new double[sequentialPatchMatrix.GetLength(0)][];
@@ -190,21 +205,23 @@ namespace AudioAnalysisTools.DSP
             return reconsSpec;
         }
 
-        //Median Noise Reduction
+        /// <summary>
+        /// Median Noise Reduction
+        /// </summary>
         public static double[,] NoiseReduction(double[,] matrix)
         {
             double[,] nrm = matrix;
 
-            //calculate modal noise profile
-            //NoiseProfile profile = NoiseProfile.CalculateModalNoiseProfile(matrix, sdCount: 0.0);
+            // calculate modal noise profile
+            // NoiseProfile profile = NoiseProfile.CalculateModalNoiseProfile(matrix, sdCount: 0.0);
             NoiseProfile profile = NoiseProfile.CalculateMedianNoiseProfile(matrix);
 
-            //smooth the noise profile
+            // smooth the noise profile
             double[] smoothedProfile = DataTools.filterMovingAverage(profile.NoiseThresholds, width: 7);
 
             nrm = SNR.TruncateBgNoiseFromSpectrogram(nrm, smoothedProfile);
 
-            //nrm = SNR.NoiseReduce_Standard(nrm, smoothedProfile, nhBackgroundThreshold: 2.0);
+            // nrm = SNR.NoiseReduce_Standard(nrm, smoothedProfile, nhBackgroundThreshold: 2.0);
 
             return nrm;
         }
