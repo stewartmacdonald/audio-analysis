@@ -38,7 +38,6 @@ namespace AudioAnalysisTools.DSP
             };
 
             var clusters = kmeans.Learn(patches.ToJagged());
-            // double[][] centroids = clusters.Centroids;
 
             // get the cluster size
             Dictionary<int, double> clusterIdSize = new Dictionary<int, double>();
@@ -120,18 +119,18 @@ namespace AudioAnalysisTools.DSP
         /// </summary>
         public static int[] SortClustersBasedOnSize(Dictionary<int, double> clusterIdSize)
         {
-            int[] sortedClusId = new int[clusterIdSize.Keys.Count];
+            int[] sortedClusterId = new int[clusterIdSize.Keys.Count];
 
             // sort clusters based on the number of samples
             var items = from pair in clusterIdSize orderby pair.Value ascending select pair;
             int ind = 0;
             foreach (var entry in items)
             {
-                sortedClusId[ind] = entry.Key;
+                sortedClusterId[ind] = entry.Key;
                 ind++;
             }
 
-            return sortedClusId;
+            return sortedClusterId;
         }
 
         /// <summary>

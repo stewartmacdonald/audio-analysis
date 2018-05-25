@@ -201,5 +201,13 @@ namespace System
                 }
             }
         }
+
+        /// <summary>
+        /// returns an empty matrix with the same number of rows and columns of the input matrix.
+        /// </summary>
+        public static double[,] EmptyCopy(this double[,] matrix)
+        {
+            return new double[matrix.GetLength(0), matrix.GetLength(1)];
+        }
     }
 }

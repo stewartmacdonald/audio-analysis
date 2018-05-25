@@ -67,7 +67,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var sonoConfig = new SonogramConfig
             {
                 WindowSize = frameSize,
-                WindowOverlap = 0.1028, // since each 24 frames duration is equal to 1 second
+                // since each 24 frames duration is equal to 1 second
+                WindowOverlap = 0.1028, 
                 DoMelScale = (scaleType == FreqScaleType.Mel) ? true : false,
                 MelBinCount = (scaleType == FreqScaleType.Mel) ? finalBinCount : frameSize / 2,
                 NoiseReductionType = NoiseReductionType.None,
@@ -103,7 +104,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     sonogram.Data = PcaWhitening.RmsNormalization(sonogram.Data);
 
                     // DO NOISE REDUCTION
-                    // sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
                     sonogram.Data = PcaWhitening.NoiseReduction(sonogram.Data);
 
                     // creating matrices from different freq bands of the source spectrogram
@@ -113,7 +113,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     int count = 0;
                     while (count < allSubmatrices.Count)
                     {
-                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, noOfRandomPatches, "random").ToMatrix());
+                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, noOfRandomPatches, PatchSampling.SamplingMethod.Random).ToMatrix());
                         count++;
                     }
                 }
@@ -205,7 +205,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 int rows = matrices2[i].GetLength(0);
                 int cols = matrices2[i].GetLength(1);
-                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (cols / patchWidth), "sequential");
+                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (cols / patchWidth), PatchSampling.SamplingMethod.Sequential);
                 allSequentialPatchMatrix.Add(sequentialPatches.ToMatrix());
             }
 

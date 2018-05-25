@@ -63,14 +63,15 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var sonoConfig = new SonogramConfig
             {
                 WindowSize = frameSize,
-                WindowOverlap = 0.1028, // since each 24 frames duration is equal to 1 second
+                // since each 24 frames duration is equal to 1 second
+                WindowOverlap = 0.1028,
                 DoMelScale = (scaleType == FreqScaleType.Mel) ? true : false,
                 MelBinCount = (scaleType == FreqScaleType.Mel) ? finalBinCount : frameSize / 2,
                 NoiseReductionType = NoiseReductionType.None,
             };
 
             int noOfFreqBand = 4;
-            int patchWidth = finalBinCount / noOfFreqBand; // when selecting patches from four different freq bands //
+            int patchWidth = finalBinCount / noOfFreqBand;
             int patchHeight = 1; // 2; // 4; // 16; // 6; // Frame size
             int noOfRandomPatches = 80; // 40; // 20; // 30; // 100; // 500; //
             // int fileCount = Directory.GetFiles(folderPath, "*.wav").Length;
@@ -121,7 +122,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     int count = 0;
                     while (count < allSubmatrices.Count)
                     {
-                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, noOfRandomPatches, "random").ToMatrix());
+                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, noOfRandomPatches, PatchSampling.SamplingMethod.Random).ToMatrix());
                         count++;
                     }
                 }
@@ -133,7 +134,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             }
 
             // convert list of random patches matrices to one matrix
-            int noOfClusters = 256; // 128; // 64; // 32; // 10; // 50;
+            int numberOfClusters = 256; // 128; // 64; // 32; // 10; // 50;
             List<double[][]> allBandsCentroids = new List<double[][]>();
             List<KMeansClusterCollection> allClusteringOutput = new List<KMeansClusterCollection>();
 
@@ -146,7 +147,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
                 // Do k-means clustering
                 string pathToClusterCsvFile = Path.Combine(resultDir, "ClusterCentroids" + i.ToString() + ".csv");
-                var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Item2, noOfClusters, pathToClusterCsvFile);
+                var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Item2, numberOfClusters, pathToClusterCsvFile);
                 // var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
 
                 // sorting clusters based on size and output it to a csv file
@@ -234,7 +235,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 int rows = matrices2[i].GetLength(0);
                 int cols = matrices2[i].GetLength(1);
-                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (cols / patchWidth), "sequential");
+                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (cols / patchWidth), PatchSampling.SamplingMethod.Sequential);
                 allSequentialPatchMatrix.Add(sequentialPatches.ToMatrix());
             }
 

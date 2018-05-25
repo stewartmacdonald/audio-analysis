@@ -120,7 +120,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             int patchWidth = cols;
             int patchHeight = 1;
             int numberOfPatches = (rows / patchHeight) * (cols / patchWidth);
-            var sequentialPatches = PatchSampling.GetPatches(sonogram.Data, patchWidth, patchHeight, numberOfPatches, "sequential");
+            var sequentialPatches = PatchSampling.GetPatches(sonogram.Data, patchWidth, patchHeight, numberOfPatches, PatchSampling.SamplingMethod.Sequential);
             double[,] sequentialPatchMatrix = sequentialPatches.ToMatrix();
 
             // DO PCA WHITENING

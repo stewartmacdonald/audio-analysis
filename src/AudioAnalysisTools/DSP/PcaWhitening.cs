@@ -25,7 +25,7 @@ namespace AudioAnalysisTools.DSP
             }
 
             // Step 1: convert matrix to a jagged array
-            double[][] jaggedArr = matrix.ToJagged();
+            double[][] jaggedArray = matrix.ToJagged();
 
             // Step 2: do PCA whitening
             var pca = new PrincipalComponentAnalysis()
@@ -35,13 +35,13 @@ namespace AudioAnalysisTools.DSP
                 Whiten = true,
             };
 
-            pca.Learn(jaggedArr);
+            pca.Learn(jaggedArray);
 
-            pca.Transform(jaggedArr);
+            pca.Transform(jaggedArray);
 
             pca.ExplainedVariance = 0.95;
 
-            double[][] output2 = pca.Transform(jaggedArr);
+            double[][] output2 = pca.Transform(jaggedArray);
             double[,] projectedData = output2.ToMatrix();
             double[,] eigenVectors = pca.ComponentVectors.ToMatrix();
             int components = pca.Components.Count;
@@ -81,54 +81,54 @@ namespace AudioAnalysisTools.DSP
         /// </summary>
         public static double[,] RmsNormalization(double[,] matrix)
         {
-            double s = 0;
-            double[,] normSpec = new double[matrix.GetLength(0), matrix.GetLength(1)];
+            double sumOfSquares = 0;
+            double[,] normalizedSpectrogram = new double[matrix.GetLength(0), matrix.GetLength(1)];
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    s += matrix[i, j] * matrix[i, j];
+                    sumOfSquares += matrix[i, j] * matrix[i, j];
                 }
             }
 
-            double rms = Math.Sqrt(s / (matrix.GetLength(0) * matrix.GetLength(1)));
+            double rms = Math.Sqrt(sumOfSquares / (matrix.GetLength(0) * matrix.GetLength(1)));
 
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    normSpec[i, j] = matrix[i, j] / rms;
+                    normalizedSpectrogram[i, j] = matrix[i, j] / rms;
                 }
             }
 
-            return normSpec;
+            return normalizedSpectrogram;
         }
 
         /// <summary>
         /// retrieving a full column of a matrix
         /// colNo is the column index we want to access
         /// </summary>
-        public static double[] GetColumn(double[,] matrix, int colNo)
+        public static double[] GetColumn(double[,] matrix, int columnIndex)
         {
-            double[] col = new double[matrix.GetLength(0)];
-            for (int r = 0; r < matrix.GetLength(0); r++)
+            double[] column = new double[matrix.GetLength(0)];
+            for (int row = 0; row < matrix.GetLength(0); row++)
             {
-                col[r] = matrix[r, colNo];
+                column[row] = matrix[row, columnIndex];
             }
 
-            return col;
+            return column;
         }
 
         /// <summary>
         /// retrieving a full row of a matrix
         /// rowNo is the column index we want to access
         /// </summary>
-        public static double[] GetRow(double[,] matrix, int rowNo)
+        public static double[] GetRow(double[,] matrix, int rowIndex)
         {
             double[] row = new double[matrix.GetLength(1)];
-            for (int c = 0; c < matrix.GetLength(1); c++)
+            for (int column = 0; column < matrix.GetLength(1); column++)
             {
-                row[c] = matrix[rowNo, c];
+                row[column] = matrix[rowIndex, column];
             }
 
             return row;
@@ -141,22 +141,22 @@ namespace AudioAnalysisTools.DSP
         /// </summary>
         public static double[,] GetProjectionMatrix(double[,] eigenVector, int numberOfOuputs)
         {
-            double[,] projMatrix = new double[eigenVector.GetLength(0), eigenVector.GetLength(1)];
+            double[,] projectionMatrix = eigenVector.EmptyCopy();
 
             for (int j = 0; j < eigenVector.GetLength(1); j++)
             {
                 for (int i = 0; i < numberOfOuputs; i++)
                 {
-                    projMatrix[i, j] = eigenVector[i, j];
+                    projectionMatrix[i, j] = eigenVector[i, j];
                 }
 
                 for (int k = numberOfOuputs; k < eigenVector.GetLength(0); k++)
                 {
-                    projMatrix[k, j] = 0;
+                    projectionMatrix[k, j] = 0;
                 }
             }
 
-            return projMatrix;
+            return projectionMatrix;
         }
 
         /// <summary>
@@ -169,8 +169,7 @@ namespace AudioAnalysisTools.DSP
             int rows = projectedData.GetLength(0);
 
             // this is actually the number of output vectors before reversion
-            int columns = projectedData.GetLength(1); 
-            // int components = pca.Components.Count;
+            int columns = projectedData.GetLength(1);
             double[,] reversion = new double[rows, numberOfComponents];
 
             for (int i = 0; i < numberOfComponents; i++)
@@ -201,8 +200,8 @@ namespace AudioAnalysisTools.DSP
             }
 
             double[,] cleanedPatches = patches.ToMatrix();
-            double[,] reconsSpec = Revert(cleanedPatches, eigenVectors, numberOfComponents);
-            return reconsSpec;
+            double[,] reconstructedSpectrogram = Revert(cleanedPatches, eigenVectors, numberOfComponents);
+            return reconstructedSpectrogram;
         }
 
         /// <summary>
