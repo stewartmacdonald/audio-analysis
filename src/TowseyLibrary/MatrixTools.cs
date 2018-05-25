@@ -286,6 +286,42 @@ namespace TowseyLibrary
         }
 
         /// <summary>
+        /// converts a vector to a matrix either in the direction of column.
+        /// For example, the "Matrix2Array" method in MatrixTools.cs builds the vector by concatenating the columns
+        /// </summary>
+        public static double[,] ArrayToMatrixByColumn(double[] vector, int columnSize, int rowSize)
+        {
+            double[,] matrix = new double[rowSize, columnSize];
+            for (int column = 0; column < vector.Length; column += columnSize)
+            {
+                for (int row = 0; row < rowSize; row++)
+                {
+                    matrix[row, column / rowSize] = vector[column + row];
+                }
+            }
+
+            return matrix;
+        }
+
+        /// <summary>
+        /// converts a vector to a matrix either in the direction of row.
+        /// </summary>
+        public static double[,] ArrayToMatrixByRow(double[] vector, int columnSize, int rowSize)
+        {
+            double[,] matrix = new double[rowSize, columnSize];
+
+            for (int row = 0; row < vector.Length; row += columnSize)
+            {
+                for (int column = 0; column < columnSize; column++)
+                {
+                    matrix[row / columnSize, column] = vector[column + row];
+                }
+            }
+
+            return matrix;
+        }
+
+        /// <summary>
         /// Converts a matrix of doubles to binary using passed threshold
         /// </summary>
         public static int[,] ThresholdMatrix2Binary(double[,] matrix, double threshold)

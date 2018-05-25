@@ -141,7 +141,7 @@ namespace AudioAnalysisTools.DSP
             double[][] patches = new double[sequentialPatchMatrix.GetLength(0)][];
             for (int i = 0; i < sequentialPatchMatrix.GetLength(0); i++)
             {
-                double[] patch = PcaWhitening.GetRow(sequentialPatchMatrix, i);
+                double[] patch = sequentialPatchMatrix.GetRow(i);
 
                 // find the nearest centroid to each patch
                 double [] scores = clusters.Scores(patch);

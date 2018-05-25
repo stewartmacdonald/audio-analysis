@@ -21,7 +21,7 @@ namespace AudioAnalysisTools.DSP
         {
             if (matrix == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(matrix));
             }
 
             // Step 1: convert matrix to a jagged array
@@ -105,36 +105,6 @@ namespace AudioAnalysisTools.DSP
         }
 
         /// <summary>
-        /// retrieving a full column of a matrix
-        /// colNo is the column index we want to access
-        /// </summary>
-        public static double[] GetColumn(double[,] matrix, int columnIndex)
-        {
-            double[] column = new double[matrix.GetLength(0)];
-            for (int row = 0; row < matrix.GetLength(0); row++)
-            {
-                column[row] = matrix[row, columnIndex];
-            }
-
-            return column;
-        }
-
-        /// <summary>
-        /// retrieving a full row of a matrix
-        /// rowNo is the column index we want to access
-        /// </summary>
-        public static double[] GetRow(double[,] matrix, int rowIndex)
-        {
-            double[] row = new double[matrix.GetLength(1)];
-            for (int column = 0; column < matrix.GetLength(1); column++)
-            {
-                row[column] = matrix[rowIndex, column];
-            }
-
-            return row;
-        }
-
-        /// <summary>
         /// Build the Projection Matrix
         /// To do so, we need eigenVectors and the number of columns of the projected data
         /// which is the number of outputs (principle components) used to transform the data
@@ -194,7 +164,7 @@ namespace AudioAnalysisTools.DSP
             double[][] patches = new double[sequentialPatchMatrix.GetLength(0)][];
             for (int i = 0; i < sequentialPatchMatrix.GetLength(0); i++)
             {
-                double[] patch = GetRow(sequentialPatchMatrix, i);
+                double[] patch = sequentialPatchMatrix.GetRow(i);
                 double[] cleanedPatch = projectionMatrix.Dot(patch);
                 patches[i] = cleanedPatch;
             }

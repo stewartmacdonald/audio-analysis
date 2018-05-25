@@ -174,9 +174,9 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 for (int k = 0; k < centroids.Length; k++)
                 {
                     // convert each centroid to a matrix in order of cluster ID
-                    // double[,] cent = PatchSampling.Array2Matrix(centroids[i], patchWidth, patchHeight, "column");
+                    // double[,] cent = PatchSampling.ArrayToMatrixByColumn(centroids[i], patchWidth, patchHeight);
                     // OR: in order of cluster size
-                    double[,] cent = PatchSampling.ArrayToMatrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
+                    double[,] cent = MatrixTools.ArrayToMatrixByColumn(centroids[sortOrder[k]], patchWidth, patchHeight);
 
                     // normalize each centroid
                     double[,] normCent = DataTools.normalise(cent);
@@ -317,7 +317,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
                         mean.Add(AutoAndCrossCorrelation.GetAverage(temp));
                         std.Add(AutoAndCrossCorrelation.GetStdev(temp));
-                        max.Add(PatchSampling.GetMaxValue(temp));
+                        max.Add(temp.GetMaxValue());
                     }
 
                     meanFeatureVectors.Add(mean.ToArray());

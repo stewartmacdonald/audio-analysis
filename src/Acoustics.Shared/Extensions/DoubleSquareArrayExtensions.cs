@@ -209,5 +209,52 @@ namespace System
         {
             return new double[matrix.GetLength(0), matrix.GetLength(1)];
         }
+
+        /// <summary>
+        /// retrieving a full column of a matrix
+        /// columnIndex is the column index we want to access
+        /// </summary>
+        public static double[] GetColumn(this double[,] matrix, int columnIndex)
+        {
+            double[] column = new double[matrix.GetLength(0)];
+            for (int row = 0; row < matrix.GetLength(0); row++)
+            {
+                column[row] = matrix[row, columnIndex];
+            }
+
+            return column;
+        }
+
+        /// <summary>
+        /// retrieving a full row of a matrix
+        /// rowIndex is the column index we want to access
+        /// </summary>
+        public static double[] GetRow(this double[,] matrix, int rowIndex)
+        {
+            double[] row = new double[matrix.GetLength(1)];
+            for (int column = 0; column < matrix.GetLength(1); column++)
+            {
+                row[column] = matrix[rowIndex, column];
+            }
+
+            return row;
+        }
+
+        /// <summary>
+        /// retrieving the max value of a vector
+        /// </summary>
+        public static double GetMaxValue(this double[] data)
+        {
+            double max = data[0];
+            for (int i = 1; i < data.Length; i++)
+            {
+                if (data[i] > max)
+                {
+                    max = data[i];
+                }
+            }
+
+            return max;
+        }
     }
 }

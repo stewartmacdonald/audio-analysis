@@ -68,7 +68,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             {
                 WindowSize = frameSize,
                 // since each 24 frames duration is equal to 1 second
-                WindowOverlap = 0.1028, 
+                WindowOverlap = 0.1028,
                 DoMelScale = (scaleType == FreqScaleType.Mel) ? true : false,
                 MelBinCount = (scaleType == FreqScaleType.Mel) ? finalBinCount : frameSize / 2,
                 NoiseReductionType = NoiseReductionType.None,
@@ -162,7 +162,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 {
                     // convert each centroid to a matrix in order of cluster ID
                     // OR: in order of cluster size
-                    double[,] cent = PatchSampling.ArrayToMatrix(centroids[sortOrder[k]], patchWidth, patchHeight, "column");
+                    double[,] cent = MatrixTools.ArrayToMatrixByColumn(centroids[sortOrder[k]], patchWidth, patchHeight);
 
                     // normalize each centroid
                     double[,] normCent = DataTools.normalise(cent);
