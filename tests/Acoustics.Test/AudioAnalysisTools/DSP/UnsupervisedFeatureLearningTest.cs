@@ -109,7 +109,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     var sonogram = new SpectrogramStandard(sonoConfig, recording.WavReader);
 
                     // DO RMS NORMALIZATION
-                    sonogram.Data = PcaWhitening.RmsNormalization(sonogram.Data);
+                    sonogram.Data = SNR.RmsNormalization(sonogram.Data);
 
                     // DO NOISE REDUCTION
                     // sonogram.Data = SNR.NoiseReduce_Median(sonogram.Data, nhBackgroundThreshold: 2.0);
@@ -218,7 +218,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             image.Save(outputMelImagePath, ImageFormat.Png);
 
             // Do RMS normalization
-            sonogram2.Data = PcaWhitening.RmsNormalization(sonogram2.Data);
+            sonogram2.Data = SNR.RmsNormalization(sonogram2.Data);
             var image2 = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "NORMALISEDMELSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
             image2.Save(outputNormMelImagePath, ImageFormat.Png);
 
