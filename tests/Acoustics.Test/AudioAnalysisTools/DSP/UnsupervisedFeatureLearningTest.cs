@@ -182,7 +182,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     double[,] normCent = DataTools.normalise(cent);
 
                     // add a row of zero to each centroid
-                    double[,] cent2 = PatchSampling.AddRow(normCent).ToMatrix();
+                    double[,] cent2 = PatchSampling.AddRow(normCent);
 
                     allCentroids.Add(cent2);
                 }

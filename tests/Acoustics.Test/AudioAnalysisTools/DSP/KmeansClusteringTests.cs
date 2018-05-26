@@ -101,7 +101,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     var sonogram = new SpectrogramStandard(sonoConfig, recording.WavReader);
 
                     // DO RMS NORMALIZATION
-                    sonogram.Data = PcaWhitening.RmsNormalization(sonogram.Data);
+                    sonogram.Data = SNR.RmsNormalization(sonogram.Data);
 
                     // DO NOISE REDUCTION
                     sonogram.Data = PcaWhitening.NoiseReduction(sonogram.Data);
@@ -168,7 +168,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     double[,] normCent = DataTools.normalise(cent);
 
                     // add a row of zero to each centroid
-                    double[,] cent2 = PatchSampling.AddRow(normCent).ToMatrix();
+                    double[,] cent2 = PatchSampling.AddRow(normCent);
 
                     allCentroids.Add(cent2);
                 }
@@ -192,7 +192,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var targetSpec = sonogram2.Data;
 
             // Do RMS normalization
-            sonogram2.Data = PcaWhitening.RmsNormalization(sonogram2.Data);
+            sonogram2.Data = SNR.RmsNormalization(sonogram2.Data);
 
             // NOISE REDUCTION
             sonogram2.Data = PcaWhitening.NoiseReduction(sonogram2.Data);

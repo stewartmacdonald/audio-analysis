@@ -122,7 +122,7 @@ namespace AudioAnalysisTools.DSP
         /// <summary>
         /// converts a spectrogram matrix to submatrices by dividing the column of input matrix to
         /// different freq bands with equal size. Output submatrices have same number of rows and same number 
-        /// of columns. noOfBand as an input parameter indicates how many output bands are needed.
+        /// of columns. numberOfBands as an input parameter indicates how many output bands are needed.
         /// </summary>
         public static List<double[,]> GetFreqBandMatrices(double[,] matrix, int numberOfBands)
         {
@@ -231,7 +231,7 @@ namespace AudioAnalysisTools.DSP
             int count = 0;
             while (count < submatrices.Count)
             {
-                AddToArray(matrix, submatrices[count], "column", submatrices[count].GetLength(1) * count);
+                DoubleSquareArrayExtensions.AddToArray(matrix, submatrices[count], DoubleSquareArrayExtensions.MergingDirection.Column, submatrices[count].GetLength(1) * count);
                 count++;
             }
 
@@ -267,31 +267,6 @@ namespace AudioAnalysisTools.DSP
         }
 
         /// <summary>
-        /// adding a 2D-array to another 2D-array either by "column" or by "row"
-        /// </summary>
-
-        public static void AddToArray(double[,] result, double[,] array, string mergingDirection, int start = 0)
-        {
-            for (int i = 0; i < array.GetLength(0); i++)
-            {
-                for (int j = 0; j < array.GetLength(1); j++)
-                {
-                    if (mergingDirection == "column")
-                    {
-                        result[i, j + start] = array[i, j];
-                    }
-                    else
-                    {
-                        if (mergingDirection == "row")
-                        {
-                            result[i + start, j] = array[i, j];
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// convert a list of patch matrices to one matrix
         /// </summary>
         public static double[,] ListOf2DArrayToOne2DArray(List<double[,]> listOfPatchMatrices)
@@ -306,7 +281,7 @@ namespace AudioAnalysisTools.DSP
                     throw new ArgumentException("All arrays must be the same length");
                 }
 
-                AddToArray(allPatchesMatrix, m, "row", i * m.GetLength(0));
+                DoubleSquareArrayExtensions.AddToArray(allPatchesMatrix, m, DoubleSquareArrayExtensions.MergingDirection.Row, i * m.GetLength(0));
             }
 
             return allPatchesMatrix;
@@ -315,22 +290,23 @@ namespace AudioAnalysisTools.DSP
         /// <summary>
         /// Adding a row of zero/one to 2D array
         /// </summary>
-        public static double[][] AddRow(double[,] matrix)
+        public static double[,] AddRow(double[,] matrix)
         {
-            double[] array = new double[matrix.GetLength(1)];
+            double[,] newMatrix = new double[matrix.GetLength(0) + 1, matrix.GetLength(1)];
+            double[] newArray = new double[matrix.GetLength(1)];
             for (int j = 0; j < matrix.GetLength(1); j++)
             {
-                array[j] = 1.0; // 0.0;
+                newArray[j] = 1.0; // 0.0;
             }
 
-            List<double[]> list = new List<double[]>();
-            for (int i = 0; i < matrix.GetLength(0); i++)
+            for (int i = 0; i < matrix.GetLength(0); ++i)
             {
-                list.Add(matrix.ToJagged()[i]);
+                Array.Copy(matrix, i, newMatrix, i, matrix.GetLength(1));
             }
 
-            list.Add(array);
-            return list.ToArray();
+            Array.Copy(newMatrix, newMatrix.GetLength(0), newArray, 0, newArray.Length);
+
+            return newMatrix;
         }
 
         /// <summary>

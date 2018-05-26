@@ -58,7 +58,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             spectrogram.Configuration.WindowSize = freqScale.WindowSize;
 
             // DO RMS NORMALIZATION
-            spectrogram.Data = PcaWhitening.RmsNormalization(spectrogram.Data);
+            spectrogram.Data = SNR.RmsNormalization(spectrogram.Data);
 
             // CONVERT NORMALIZED AMPLITUDE SPECTROGRAM TO dB SPECTROGRAM
             var sonogram = new SpectrogramStandard(spectrogram);
@@ -105,7 +105,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             spectrogram.Configuration.WindowSize = freqScale.WindowSize;
 
             // DO RMS NORMALIZATION
-            spectrogram.Data = PcaWhitening.RmsNormalization(spectrogram.Data);
+            spectrogram.Data = SNR.RmsNormalization(spectrogram.Data);
 
             // CONVERT NORMALIZED AMPLITUDE SPECTROGRAM TO dB SPECTROGRAM
             var sonogram = new SpectrogramStandard(spectrogram);

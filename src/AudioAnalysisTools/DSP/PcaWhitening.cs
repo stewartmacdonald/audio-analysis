@@ -77,34 +77,6 @@ namespace AudioAnalysisTools.DSP
         }
 
         /// <summary>
-        ///  RMS Normalization
-        /// </summary>
-        public static double[,] RmsNormalization(double[,] matrix)
-        {
-            double sumOfSquares = 0;
-            double[,] normalizedSpectrogram = new double[matrix.GetLength(0), matrix.GetLength(1)];
-            for (int i = 0; i < matrix.GetLength(0); i++)
-            {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    sumOfSquares += matrix[i, j] * matrix[i, j];
-                }
-            }
-
-            double rms = Math.Sqrt(sumOfSquares / (matrix.GetLength(0) * matrix.GetLength(1)));
-
-            for (int i = 0; i < matrix.GetLength(0); i++)
-            {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    normalizedSpectrogram[i, j] = matrix[i, j] / rms;
-                }
-            }
-
-            return normalizedSpectrogram;
-        }
-
-        /// <summary>
         /// Build the Projection Matrix
         /// To do so, we need eigenVectors and the number of columns of the projected data
         /// which is the number of outputs (principle components) used to transform the data

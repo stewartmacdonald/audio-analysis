@@ -241,20 +241,38 @@ namespace System
         }
 
         /// <summary>
-        /// retrieving the max value of a vector
+        /// The merging direction when adding a 2D-array to another 2D-array.
         /// </summary>
-        public static double GetMaxValue(this double[] data)
+        public enum MergingDirection
         {
-            double max = data[0];
-            for (int i = 1; i < data.Length; i++)
+            Row = 0,
+
+            Column = 1,
+        }
+
+        /// <summary>
+        /// adding a 2D-array to another 2D-array either by "column" or by "row"
+        /// </summary>
+
+        public static void AddToArray(double[,] result, double[,] array, MergingDirection mergingDirection, int start = 0)
+        {
+            for (int i = 0; i < array.GetLength(0); i++)
             {
-                if (data[i] > max)
+                for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    max = data[i];
+                    if (mergingDirection.Equals(0))
+                    {
+                        result[i + start, j] = array[i, j];
+                    }
+                    else
+                    {
+                        if (mergingDirection.Equals(1))
+                        {
+                            result[i, j + start] = array[i, j];
+                        }
+                    }
                 }
             }
-
-            return max;
         }
     }
 }
