@@ -205,7 +205,7 @@ namespace AudioAnalysisTools.DSP
         public static double[,] RmsNormalization(double[,] matrix)
         {
             double sumOfSquares = 0;
-            double[,] normalizedSpectrogram = new double[matrix.GetLength(0), matrix.GetLength(1)];
+            double[,] normalizedMatrix = new double[matrix.GetLength(0), matrix.GetLength(1)];
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
@@ -220,11 +220,11 @@ namespace AudioAnalysisTools.DSP
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    normalizedSpectrogram[i, j] = matrix[i, j] / rms;
+                    normalizedMatrix[i, j] = matrix[i, j] / rms;
                 }
             }
 
-            return normalizedSpectrogram;
+            return normalizedMatrix;
         }
 
 

@@ -144,7 +144,7 @@ namespace AudioAnalysisTools.DSP
                 double[] patch = sequentialPatchMatrix.GetRow(i);
 
                 // find the nearest centroid to each patch
-                double [] scores = clusters.Scores(patch);
+                double[] scores = clusters.Scores(patch);
                 int ind = scores.IndexOf(clusters.Score(patch));
                 double[] nearestCentroid = clusters.Centroids[ind];
 

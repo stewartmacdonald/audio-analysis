@@ -70,15 +70,15 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 NoiseReductionType = NoiseReductionType.None,
             };
 
-            int noOfFreqBand = 4;
-            int patchWidth = finalBinCount / noOfFreqBand;
+            int numFreqBand = 4;
+            int patchWidth = finalBinCount / numFreqBand;
             int patchHeight = 1; // 2; // 4; // 16; // 6; // Frame size
-            int noOfRandomPatches = 80; // 40; // 20; // 30; // 100; // 500; //
+            int numRandomPatches = 80; // 40; // 20; // 30; // 100; // 500; //
             // int fileCount = Directory.GetFiles(folderPath, "*.wav").Length;
 
             // Define variable number of "randomPatch" lists based on "noOfFreqBand"
             Dictionary<string, List<double[,]>> randomPatchLists = new Dictionary<string, List<double[,]>>();
-            for (int i = 0; i < noOfFreqBand; i++)
+            for (int i = 0; i < numFreqBand; i++)
             {
                 randomPatchLists.Add(string.Format("randomPatch{0}", i.ToString()), new List<double[,]>());
             }
@@ -116,13 +116,13 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     sonogram.Data = PcaWhitening.NoiseReduction(sonogram.Data);
 
                     // creating matrices from different freq bands of the source spectrogram
-                    List<double[,]> allSubmatrices = PatchSampling.GetFreqBandMatrices(sonogram.Data, noOfFreqBand);
+                    List<double[,]> allSubmatrices = PatchSampling.GetFreqBandMatrices(sonogram.Data, numFreqBand);
 
                     // Second: selecting random patches from each freq band matrix and add them to the corresponding patch list
                     int count = 0;
                     while (count < allSubmatrices.Count)
                     {
-                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, noOfRandomPatches, PatchSampling.SamplingMethod.Random).ToMatrix());
+                        randomPatchLists[string.Format("randomPatch{0}", count.ToString())].Add(PatchSampling.GetPatches(allSubmatrices.ToArray()[count], patchWidth, patchHeight, numRandomPatches, PatchSampling.SamplingMethod.Random).ToMatrix());
                         count++;
                     }
                 }
@@ -228,14 +228,14 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             image3.Save(outputNoiseReducedMelImagePath, ImageFormat.Png);
 
             // extracting sequential patches from the target spectrogram
-            List<double[,]> allSubmatrices2 = PatchSampling.GetFreqBandMatrices(sonogram2.Data, noOfFreqBand);
+            List<double[,]> allSubmatrices2 = PatchSampling.GetFreqBandMatrices(sonogram2.Data, numFreqBand);
             double[][,] matrices2 = allSubmatrices2.ToArray();
             List<double[,]> allSequentialPatchMatrix = new List<double[,]>();
             for (int i = 0; i < matrices2.GetLength(0); i++)
             {
                 int rows = matrices2[i].GetLength(0);
-                int cols = matrices2[i].GetLength(1);
-                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (cols / patchWidth), PatchSampling.SamplingMethod.Sequential);
+                int columns = matrices2[i].GetLength(1);
+                var sequentialPatches = PatchSampling.GetPatches(matrices2[i], patchWidth, patchHeight, (rows / patchHeight) * (columns / patchWidth), PatchSampling.SamplingMethod.Sequential);
                 allSequentialPatchMatrix.Add(sequentialPatches.ToMatrix());
             }
 
@@ -263,8 +263,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 double[][] featureTransVectors = new double[allSequentialPatchMatrix.ToArray()[i].GetLength(0)][];
                 for (int j = 0; j < allSequentialPatchMatrix.ToArray()[i].GetLength(0); j++)
                 {
-                    var normVec = ART_2A.NormaliseVector(allSequentialPatchMatrix.ToArray()[i].ToJagged()[j]); // normalize each patch to unit length
-                    featureTransVectors[j] = allNormCentroids.ToArray()[i].ToMatrix().Dot(normVec);
+                    var normVector = ART_2A.NormaliseVector(allSequentialPatchMatrix.ToArray()[i].ToJagged()[j]); // normalize each patch to unit length
+                    featureTransVectors[j] = allNormCentroids.ToArray()[i].ToMatrix().Dot(normVector);
                 }
 
                 allFeatureTransVectors.Add(featureTransVectors);
@@ -283,7 +283,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             List<double[,]> allStdFeatureVectors = new List<double[,]>();
 
             // number of frames needs to be concatenated to form 1 second. Each 24 frames make 1 second.
-            int noFrames = 24 / patchHeight;
+            int numFrames = 24 / patchHeight;
 
             foreach (var freqBandFeature in allFeatureTransVectors)
             {
@@ -291,11 +291,11 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 List<double[]> maxFeatureVectors = new List<double[]>();
                 List<double[]> stdFeatureVectors = new List<double[]>();
                 int c = 0;
-                while (c + noFrames < freqBandFeature.GetLength(0))
+                while (c + numFrames < freqBandFeature.GetLength(0))
                 {
                     // First, make a list of patches that would be equal to 1 second
                     List<double[]> sequencesOfFramesList = new List<double[]>();
-                    for (int i = c; i < c + noFrames; i++)
+                    for (int i = c; i < c + numFrames; i++)
                     {
                         sequencesOfFramesList.Add(freqBandFeature[i]);
                     }
@@ -323,7 +323,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     meanFeatureVectors.Add(mean.ToArray());
                     maxFeatureVectors.Add(max.ToArray());
                     stdFeatureVectors.Add(std.ToArray());
-                    c += noFrames;
+                    c += numFrames;
                 }
 
                 allMeanFeatureVectors.Add(meanFeatureVectors.ToArray().ToMatrix());
@@ -394,7 +394,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             }
 
             List<double[,]> convertedSpec = new List<double[,]>();
-            int columnPerFreqBand = sonogram2.Data.GetLength(1) / noOfFreqBand;
+            int columnPerFreqBand = sonogram2.Data.GetLength(1) / numFreqBand;
             for (int i = 0; i < allSequentialPatchMatrix.Count; i++)
             {
                 double[,] reconstructedSpec2 = KmeansClustering.ReconstructSpectrogram(allSequentialPatchMatrix.ToArray()[i], allClusteringOutput.ToArray()[i]);
@@ -404,8 +404,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             sonogram2.Data = PatchSampling.ConcatFreqBandMatrices(convertedSpec);
 
             // DO DRAW SPECTROGRAM
-            var respecImage = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "RECONSTRUCTEDSPECTROGRAM: " + freqScale.ScaleType.ToString(), freqScale.GridLineLocations);
-            respecImage.Save(outputReSpecImagePath, ImageFormat.Png);
+            var reconstructedSpecImage = sonogram2.GetImageFullyAnnotated(sonogram2.GetImage(), "RECONSTRUCTEDSPECTROGRAM: " + freqScale.ScaleType.ToString(), freqScale.GridLineLocations);
+            reconstructedSpecImage.Save(outputReSpecImagePath, ImageFormat.Png);
         }
     }
 }

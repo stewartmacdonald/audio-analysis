@@ -292,11 +292,11 @@ namespace TowseyLibrary
         public static double[,] ArrayToMatrixByColumn(double[] vector, int columnSize, int rowSize)
         {
             double[,] matrix = new double[rowSize, columnSize];
-            for (int column = 0; column < vector.Length; column += rowSize)
+            for (int c = 0; c < vector.Length; c += rowSize)
             {
-                for (int row = 0; row < rowSize; row++)
+                for (int r = 0; r < rowSize; r++)
                 {
-                    matrix[row, column / rowSize] = vector[column + row];
+                    matrix[r, c / rowSize] = vector[c + r];
                 }
             }
 
@@ -310,11 +310,11 @@ namespace TowseyLibrary
         {
             double[,] matrix = new double[rowSize, columnSize];
 
-            for (int row = 0; row < vector.Length; row += columnSize)
+            for (int r = 0; r < vector.Length; r += columnSize)
             {
-                for (int column = 0; column < columnSize; column++)
+                for (int c = 0; c < columnSize; c++)
                 {
-                    matrix[row / columnSize, column] = vector[column + row];
+                    matrix[r / columnSize, c] = vector[c + r];
                 }
             }
 

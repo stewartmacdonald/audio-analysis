@@ -212,7 +212,7 @@ namespace System
 
         /// <summary>
         /// retrieving a full column of a matrix
-        /// columnIndex is the column index we want to access
+        /// columnIndex is the column we want to access
         /// </summary>
         public static double[] GetColumn(this double[,] matrix, int columnIndex)
         {
@@ -227,7 +227,7 @@ namespace System
 
         /// <summary>
         /// retrieving a full row of a matrix
-        /// rowIndex is the column index we want to access
+        /// rowIndex is the row we want to access
         /// </summary>
         public static double[] GetRow(this double[,] matrix, int rowIndex)
         {

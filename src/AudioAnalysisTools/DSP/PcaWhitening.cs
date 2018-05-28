@@ -41,8 +41,8 @@ namespace AudioAnalysisTools.DSP
 
             pca.ExplainedVariance = 0.95;
 
-            double[][] output2 = pca.Transform(jaggedArray);
-            double[,] projectedData = output2.ToMatrix();
+            double[][] output = pca.Transform(jaggedArray);
+            double[,] projectedData = output.ToMatrix();
             double[,] eigenVectors = pca.ComponentVectors.ToMatrix();
             int components = pca.Components.Count;
 
@@ -81,18 +81,18 @@ namespace AudioAnalysisTools.DSP
         /// To do so, we need eigenVectors and the number of columns of the projected data
         /// which is the number of outputs (principle components) used to transform the data
         /// </summary>
-        public static double[,] GetProjectionMatrix(double[,] eigenVector, int numberOfOuputs)
+        public static double[,] GetProjectionMatrix(double[,] eigenVector, int numberOfOutputs)
         {
             double[,] projectionMatrix = eigenVector.EmptyCopy();
 
             for (int j = 0; j < eigenVector.GetLength(1); j++)
             {
-                for (int i = 0; i < numberOfOuputs; i++)
+                for (int i = 0; i < numberOfOutputs; i++)
                 {
                     projectionMatrix[i, j] = eigenVector[i, j];
                 }
 
-                for (int k = numberOfOuputs; k < eigenVector.GetLength(0); k++)
+                for (int k = numberOfOutputs; k < eigenVector.GetLength(0); k++)
                 {
                     projectionMatrix[k, j] = 0;
                 }

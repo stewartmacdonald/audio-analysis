@@ -68,7 +68,7 @@ namespace AudioAnalysisTools.DSP
         /// converts a set of patches to a matrix of original size after applying pca.
         /// the assumption here is that the input matrix is a sequential non-overlapping patches.
         /// </summary>
-        public static double[,] ConvertPatches(double[,] whitenedPatches, int patchWidth, int patchHeight, int colSize)
+        public static double[,] ConvertPatches(double[,] whitenedPatches, int patchWidth, int patchHeight, int columnSize)
         {
             int ht = whitenedPatches.GetLength(0);
             double[][] patches = whitenedPatches.ToJagged();
@@ -79,7 +79,7 @@ namespace AudioAnalysisTools.DSP
                 allPatches.Add(MatrixTools.ArrayToMatrixByColumn(patches[row], patchWidth, patchHeight));
             }
 
-            double[,] matrix = ConcatenateGridOfPatches(allPatches, colSize, patchWidth, patchHeight);
+            double[,] matrix = ConcatenateGridOfPatches(allPatches, columnSize, patchWidth, patchHeight);
 
             return matrix;
         }
@@ -88,13 +88,13 @@ namespace AudioAnalysisTools.DSP
         /// construct the original matrix from a list of sequential patches
         /// all vectors in list are of the same length
         /// </summary>
-        public static double[,] ConcatenateGridOfPatches(List<double[,]> list, int colSize, int patchWidth, int patchHeight)
+        public static double[,] ConcatenateGridOfPatches(List<double[,]> list, int columnSize, int patchWidth, int patchHeight)
         {
             double[][,] arrayOfPatches = list.ToArray();
 
             // number of patches
             int rows = list.Count;
-            int numberOfItemsInRow = colSize / patchWidth; 
+            int numberOfItemsInRow = columnSize / patchWidth;
             int numberOfItemsInColumn = rows / numberOfItemsInRow;
             double[,] matrix = new double[numberOfItemsInColumn * patchHeight, numberOfItemsInRow * patchWidth];
 
@@ -127,36 +127,37 @@ namespace AudioAnalysisTools.DSP
         public static List<double[,]> GetFreqBandMatrices(double[,] matrix, int numberOfBands)
         {
             List<double[,]> allSubmatrices = new List<double[,]>();
-            int cols = matrix.GetLength(1); // number of freq bins
+
+            // number of freq bins
+            int columns = matrix.GetLength(1);
             int rows = matrix.GetLength(0);
-            int newCol = cols / numberOfBands;
+            int newColumn = columns / numberOfBands;
 
             int bandId = 0;
             while (bandId < numberOfBands)
             {
-                double[,] m = new double[rows, newCol];
+                double[,] submatrix = new double[rows, newColumn];
                 for (int i = 0; i < rows; i++)
                 {
-                    for (int j = 0; j < newCol; j++)
+                    for (int j = 0; j < newColumn; j++)
                     {
-                        m[i, j] = matrix[i, j + (newCol * bandId)];
+                        submatrix[i, j] = matrix[i, j + (newColumn * bandId)];
                     }
                 }
 
-                allSubmatrices.Add(m);
+                allSubmatrices.Add(submatrix);
                 bandId++;
             }
 
             // Note that if we want the first 1/4 as the lower band, the second and third 1/4 as the mid,
             // and the last 1/4 is the upper freq band, we need to use the commented part of the code.
             /*
-            double[,] minFreqBandMatrix = new double[rows, newCol];
-            double[,] maxFreqBandMatrix = new double[rows, newCol];
+            double[,] minFreqBandMatrix = new double[rows, newColumn];
+            double[,] maxFreqBandMatrix = new double[rows, newColumn];
 
-            // Note that I am not aware of any faster way to copy a part of 2D-array
             for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < newCol; j++)
+                for (int j = 0; j < newColumn; j++)
                 {
                     minFreqBandMatrix[i, j] = matrix[i, j];
                 }
@@ -164,52 +165,22 @@ namespace AudioAnalysisTools.DSP
 
             allSubmatrices.Add(minFreqBandMatrix);
 
-            if (numberOfBands == 3)
+            double[,] midFreqBandMatrix = new double[rows, newColumn * 2];
+            for (int i = 0; i < rows; i++)
             {
-                double[,] midFreqBandMatrix = new double[rows, newCol * 2];
-                for (int i = 0; i < rows; i++)
+                for (int j = 0; j < newColumn * 2; j++)
                 {
-                    for (int j = 0; j < newCol * 2; j++)
-                    {
-                        midFreqBandMatrix[i, j] = matrix[i, j + newCol];
-                    }
-                }
-
-                allSubmatrices.Add(midFreqBandMatrix);
-            }
-            else
-            {
-                if (numberOfBands == 4)
-                {
-                    double[,] mid1FreqBandMatrix = new double[rows, newCol];
-                    double[,] mid2FreqBandMatrix = new double[rows, newCol];
-                    for (int i = 0; i < rows; i++)
-                    {
-                        for (int j = 0; j < newCol; j++)
-                        {
-                            mid1FreqBandMatrix[i, j] = matrix[i, j + newCol];
-                        }
-                    }
-
-                    allSubmatrices.Add(mid1FreqBandMatrix);
-
-                    for (int i = 0; i < rows; i++)
-                    {
-                        for (int j = 0; j < newCol; j++)
-                        {
-                            mid2FreqBandMatrix[i, j] = matrix[i, j + newCol * 2];
-                        }
-                    }
-
-                    allSubmatrices.Add(mid2FreqBandMatrix);
+                    midFreqBandMatrix[i, j] = matrix[i, j + newColumn];
                 }
             }
+
+            allSubmatrices.Add(midFreqBandMatrix);
 
             for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < newCol; j++)
+                for (int j = 0; j < newColumn; j++)
                 {
-                    maxFreqBandMatrix[i, j] = matrix[i, j + newCol * 3];
+                    maxFreqBandMatrix[i, j] = matrix[i, j + newColumn * 3];
                 }
             }
 
@@ -238,18 +209,18 @@ namespace AudioAnalysisTools.DSP
             // If we have frequency band matrices with different number of columns,
             // Then the below commented code need to be used.
             /*
-            double[][,] submat = submatrices.ToArray();
+            double[][,] submatrix = submatrices.ToArray();
             int colSize = 0;
-            for (int i = 0; i < submat.Length; i++)
+            for (int i = 0; i < submatrix.Length; i++)
             {
-                colSize = colSize + submat[i].GetLength(1);
+                colSize = colSize + submatrix[i].GetLength(1);
             }
 
             // storing the number of rows of each submatrice in an array
-            int[] noRows = new int[submat.Length];
-            for (int i = 0; i < submat.Length; i++)
+            int[] noRows = new int[submatrix.Length];
+            for (int i = 0; i < submatrix.Length; i++)
             {
-                noRows[i] = submat[i].GetLength(0);
+                noRows[i] = submatrix[i].GetLength(0);
             }
 
             // find the max number of rows from noRows array
@@ -258,9 +229,9 @@ namespace AudioAnalysisTools.DSP
             double[,] matrix = new double[maxRows, colSize];
 
             // might be better way to do this
-            AddToArray(matrix, submat[0], "column");
-            AddToArray(matrix, submat[1], "column", submat[0].GetLength(1));
-            AddToArray(matrix, submat[2], "column", submat[0].GetLength(1) + submat[1].GetLength(1));
+            AddToArray(matrix, submatrix[0], "column");
+            AddToArray(matrix, submatrix[1], "column", submatrix[0].GetLength(1));
+            AddToArray(matrix, submatrix[2], "column", submatrix[0].GetLength(1) + submatrix[1].GetLength(1));
             */
 
             return matrix;
@@ -311,7 +282,7 @@ namespace AudioAnalysisTools.DSP
                 newArray[j] = 1.0;
             }
 
-            //convert the new array to a matrix
+            // convert the new array to a matrix
             double[,] matrix2 = MatrixTools.ArrayToMatrixByColumn(newArray, newArray.Length, 1);
             int minX2 = matrix2.GetLength(0);
             int minY2 = matrix2.GetLength(1);
@@ -411,7 +382,7 @@ namespace AudioAnalysisTools.DSP
                 // note that if we select full band patches, then we don't need to shift the column.
                 rowRandomNumber = rowRandomNumber + 1;
 
-                // Second, slide the patch window (rInt+1) to select the next patch
+                // Second, slide the patch window (rowRandomNumber + 1) to select the next patch
                 double[,] submatrix2 = MatrixTools.Submatrix(matrix, rowRandomNumber, columnRandomNumber,
                     rowRandomNumber + patchHeight - 1, columnRandomNumber + patchWidth - 1);
                 patches.Add(MatrixTools.Matrix2Array(submatrix2));

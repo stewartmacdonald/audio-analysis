@@ -4,7 +4,6 @@
 
 namespace Acoustics.Test.AudioAnalysisTools.DSP
 {
-
     using System;
     using System.Collections.Generic;
     using System.Drawing;
@@ -67,7 +66,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var sonoConfig = new SonogramConfig
             {
                 WindowSize = frameSize,
-                // since each 24 frames duration is equal to 1 second
+
+                //WindowOverlap is set based on the fact that each 24 frames is equal to 1 second
                 WindowOverlap = 0.1028,
                 DoMelScale = (scaleType == FreqScaleType.Mel) ? true : false,
                 MelBinCount = (scaleType == FreqScaleType.Mel) ? finalBinCount : frameSize / 2,
@@ -97,7 +97,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 {
                     var recording = new AudioRecording(filePath);
                     sonoConfig.SourceFName = recording.BaseName;
-
                     var sonogram = new SpectrogramStandard(sonoConfig, recording.WavReader);
 
                     // DO RMS NORMALIZATION
@@ -126,7 +125,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
             // convert list of random patches matrices to one matrix
             int numberOfClusters = 32;
-            // List<double[][]> allBandsCentroids = new List<double[][]>();
             List<KMeansClusterCollection> allClusteringOutput = new List<KMeansClusterCollection>();
 
             for (int i = 0; i < randomPatches.Count; i++)
@@ -154,7 +152,6 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                     centroids[j] = listCluster[j].Value;
                 }
 
-                // allBandsCentroids.Add(centroids);
                 allClusteringOutput.Add(clusteringOutput.Item3);
 
                 List<double[,]> allCentroids = new List<double[,]>();

@@ -32,7 +32,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
         }
 
         /// <summary>
-        /// METHOD TO CHECK IF Default PCA Whitening IS WORKING
+        /// METHOD TO CHECK IF Default PCA WHITENING IS WORKING
         /// Check it on standard one minute recording.
         /// </summary>
         [TestMethod]
@@ -116,10 +116,10 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
             // Do Patch Sampling
             int rows = sonogram.Data.GetLength(0);
-            int cols = sonogram.Data.GetLength(1);
-            int patchWidth = cols;
+            int columns = sonogram.Data.GetLength(1);
+            int patchWidth = columns;
             int patchHeight = 1;
-            int numberOfPatches = (rows / patchHeight) * (cols / patchWidth);
+            int numberOfPatches = (rows / patchHeight) * (columns / patchWidth);
             var sequentialPatches = PatchSampling.GetPatches(sonogram.Data, patchWidth, patchHeight, numberOfPatches, PatchSampling.SamplingMethod.Sequential);
             double[,] sequentialPatchMatrix = sequentialPatches.ToMatrix();
 
@@ -129,11 +129,11 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             // reconstructing the spectrogram from sequential patches and the projection matrix obtained from random patches
             var projectionMatrix = whitenedSpectrogram.Item1;
             var eigenVectors = whitenedSpectrogram.Item3;
-            var noOfComp = whitenedSpectrogram.Item4;
-            double[,] reconstructedSpec = PcaWhitening.ReconstructSpectrogram(projectionMatrix, sequentialPatchMatrix, eigenVectors, noOfComp);
-            sonogram.Data = PatchSampling.ConvertPatches(reconstructedSpec, patchWidth, patchHeight, cols);
-            var respecImage = sonogram.GetImageFullyAnnotated(sonogram.GetImage(), "RECONSTRUCTEDSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
-            respecImage.Save(outputImagePath, ImageFormat.Png);
+            var numComponents = whitenedSpectrogram.Item4;
+            double[,] reconstructedSpec = PcaWhitening.ReconstructSpectrogram(projectionMatrix, sequentialPatchMatrix, eigenVectors, numComponents);
+            sonogram.Data = PatchSampling.ConvertPatches(reconstructedSpec, patchWidth, patchHeight, columns);
+            var reconstructedSpecImage = sonogram.GetImageFullyAnnotated(sonogram.GetImage(), "RECONSTRUCTEDSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);
+            reconstructedSpecImage.Save(outputImagePath, ImageFormat.Png);
 
             // DO UNIT TESTING
             Assert.AreEqual(spectrogram.Data.GetLength(0), sonogram.Data.GetLength(0));
