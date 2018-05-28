@@ -260,13 +260,13 @@ namespace System
             {
                 for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    if (mergingDirection.Equals(0))
+                    if (mergingDirection == MergingDirection.Row)
                     {
                         result[i + start, j] = array[i, j];
                     }
                     else
                     {
-                        if (mergingDirection.Equals(1))
+                        if (mergingDirection == MergingDirection.Column)
                         {
                             result[i, j + start] = array[i, j];
                         }

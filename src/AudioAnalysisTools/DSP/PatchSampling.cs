@@ -42,19 +42,19 @@ namespace AudioAnalysisTools.DSP
         public static double[][] GetPatches(double[,] spectrogram, int patchWidth, int patchHeight, int numberOfPatches, SamplingMethod samplingMethod)
         {
             List<double[]> patches = new List<double[]>();
-            if (samplingMethod.Equals(0))
+            if (samplingMethod == SamplingMethod.Sequential)
             {
                 patches = GetSequentialPatches(spectrogram, patchWidth, patchHeight);
             }
             else
             {
-                if (samplingMethod.Equals(1))
+                if (samplingMethod == SamplingMethod.Random)
                 {
                     patches = GetRandomPatches(spectrogram, patchWidth, patchHeight, numberOfPatches);
                 }
                 else
                 {
-                    if (samplingMethod.Equals(2))
+                    if (samplingMethod == SamplingMethod.OverlappedRandom)
                     {
                        patches = GetOverlappedRandomPatches(spectrogram, patchWidth, patchHeight, numberOfPatches);
                     }
@@ -294,23 +294,39 @@ namespace AudioAnalysisTools.DSP
         {
             double[,] newMatrix = new double[matrix.GetLength(0) + 1, matrix.GetLength(1)];
             double[] newArray = new double[matrix.GetLength(1)];
+
+            int minX = matrix.GetLength(0);
+            int minY = matrix.GetLength(1);
+
+            // copying the original matrix to a new matrix (row by row)
+
+            for (int i = 0; i < minX; ++i)
+            {
+                Array.Copy(matrix, i * matrix.GetLength(1), newMatrix, i * matrix.GetLength(1), minY);
+            }
+
+            // creating an array of "1.0" or "0.0"
             for (int j = 0; j < matrix.GetLength(1); j++)
             {
-                newArray[j] = 1.0; // 0.0;
+                newArray[j] = 1.0;
             }
 
-            for (int i = 0; i < matrix.GetLength(0); ++i)
+            //convert the new array to a matrix
+            double[,] matrix2 = MatrixTools.ArrayToMatrixByColumn(newArray, newArray.Length, 1);
+            int minX2 = matrix2.GetLength(0);
+            int minY2 = matrix2.GetLength(1);
+
+            // copying the array of one or zero to the last row of the new matrix
+            for (int i = 0; i < minX2; ++i)
             {
-                Array.Copy(matrix, i, newMatrix, i, matrix.GetLength(1));
+                Array.Copy(matrix2, i * matrix2.GetLength(1), newMatrix, minX * minY, minY2);
             }
-
-            Array.Copy(newMatrix, newMatrix.GetLength(0), newArray, 0, newArray.Length);
 
             return newMatrix;
         }
 
         /// <summary>
-        /// Generate non-overlapping sequential patches from a matrix
+        /// Generate non-overlapping sequential patches from a <paramref name="matrix"/>
         /// </summary>
         private static List<double[]> GetSequentialPatches(double[,] matrix, int patchWidth, int patchHeight)
         {
