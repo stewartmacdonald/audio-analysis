@@ -17,7 +17,18 @@ namespace AudioAnalysisTools.DSP
         /// in Accord.net, this matrix is called "ComponentVectors", which its columns contain the
         /// principle components, known as Eigenvectors.
         /// </summary>
-        public static (double[,] projectionMatrix, double[,] reversion, double[,] eigenVectors, int components) Whitening(double[,] matrix)
+        public class Output
+        {
+            public double[,] ProjectionMatrix { get; set; }
+
+            public double[,] Reversion { get; set; }
+
+            public double[,] EigenVectors { get; set; }
+
+            public int Components { get; set; }
+        }
+
+        public static Output Whitening(double[,] matrix)
         {
             if (matrix == null)
             {
@@ -41,8 +52,8 @@ namespace AudioAnalysisTools.DSP
 
             pca.ExplainedVariance = 0.95;
 
-            double[][] output = pca.Transform(jaggedArray);
-            double[,] projectedData = output.ToMatrix();
+            double[][] transformedData = pca.Transform(jaggedArray);
+            double[,] projectedData = transformedData.ToMatrix();
             double[,] eigenVectors = pca.ComponentVectors.ToMatrix();
             int components = pca.Components.Count;
 
@@ -72,8 +83,15 @@ namespace AudioAnalysisTools.DSP
             // sort in descending order based on the eigenvalues
             eigPairs.Sort((x, y) => y.Item1.CompareTo(x.Item1));
             */
+            var output = new Output()
+            {
+                ProjectionMatrix = projectionMatrix,
+                Reversion = reversion,
+                EigenVectors = eigenVectors,
+                Components = components,
+            };
 
-            return (projectionMatrix, reversion, eigenVectors, components);
+            return output;
         }
 
         /// <summary>

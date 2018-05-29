@@ -72,8 +72,8 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
             // DO UNIT TESTING
             // check if the dimensions of the reverted spectrogram (second output of the pca whitening) is equal to the input matrix
-            Assert.AreEqual(whitenedSpectrogram.Item2.GetLength(0), sonogram.Data.GetLength(0));
-            Assert.AreEqual(whitenedSpectrogram.Item2.GetLength(1), sonogram.Data.GetLength(1));
+            Assert.AreEqual(whitenedSpectrogram.Reversion.GetLength(0), sonogram.Data.GetLength(0));
+            Assert.AreEqual(whitenedSpectrogram.Reversion.GetLength(1), sonogram.Data.GetLength(1));
         }
 
         /// <summary>
@@ -127,9 +127,9 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
             var whitenedSpectrogram = PcaWhitening.Whitening(sequentialPatchMatrix);
 
             // reconstructing the spectrogram from sequential patches and the projection matrix obtained from random patches
-            var projectionMatrix = whitenedSpectrogram.Item1;
-            var eigenVectors = whitenedSpectrogram.Item3;
-            var numComponents = whitenedSpectrogram.Item4;
+            var projectionMatrix = whitenedSpectrogram.ProjectionMatrix;//whitenedSpectrogram.projectionMatrix;
+            var eigenVectors = whitenedSpectrogram.EigenVectors;
+            var numComponents = whitenedSpectrogram.Components;
             double[,] reconstructedSpec = PcaWhitening.ReconstructSpectrogram(projectionMatrix, sequentialPatchMatrix, eigenVectors, numComponents);
             sonogram.Data = PatchSampling.ConvertPatches(reconstructedSpec, patchWidth, patchHeight, columns);
             var reconstructedSpecImage = sonogram.GetImageFullyAnnotated(sonogram.GetImage(), "RECONSTRUCTEDSPECTROGRAM: " + fst.ToString(), freqScale.GridLineLocations);

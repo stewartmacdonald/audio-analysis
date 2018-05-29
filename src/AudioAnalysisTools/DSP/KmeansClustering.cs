@@ -20,9 +20,16 @@ namespace AudioAnalysisTools.DSP
 
     public static class KmeansClustering
     {
-        public static (Dictionary<int, double[]> clusterIdCent, Dictionary<int, double> clusterIdSize,
-            KMeansClusterCollection clusters) Clustering(double[,] patches, int numberOfClusters,
-                string pathToCentroidFile)
+        public class Output
+        {
+            public Dictionary<int, double[]> ClusterIdCentroid { get; set; }
+
+            public Dictionary<int, double> ClusterIdSize { get; set; }
+
+            public KMeansClusterCollection Clusters { get; set; }
+        }
+
+        public static Output Clustering(double[,] patches, int numberOfClusters, string pathToCentroidFile)
         {
             // "Generator.Seed" sets a random seed for the framework's main internal number generator, which
             // gets a reference to the random number generator used internally by the Accord.NET classes and methods.
@@ -41,16 +48,23 @@ namespace AudioAnalysisTools.DSP
 
             // get the cluster size
             Dictionary<int, double> clusterIdSize = new Dictionary<int, double>();
-            Dictionary<int, double[]> clusterIdCent = new Dictionary<int, double[]>();
+            Dictionary<int, double[]> clusterIdCentroid = new Dictionary<int, double[]>();
             foreach (var clust in clusters.Clusters)
             {
                 clusterIdSize.Add(clust.Index, clust.Proportion);
-                clusterIdCent.Add(clust.Index, clust.Centroid);
+                clusterIdCentroid.Add(clust.Index, clust.Centroid);
             }
 
-            Csv.WriteToCsv(pathToCentroidFile.ToFileInfo(), clusterIdCent);
+            Csv.WriteToCsv(pathToCentroidFile.ToFileInfo(), clusterIdCentroid);
 
-            return (clusterIdCent, clusterIdSize, clusters);
+            var output = new Output()
+            {
+                ClusterIdCentroid = clusterIdCentroid,
+                ClusterIdSize = clusterIdSize,
+                Clusters = clusters,
+            };
+
+            return output;
         }
 
         /// <summary>

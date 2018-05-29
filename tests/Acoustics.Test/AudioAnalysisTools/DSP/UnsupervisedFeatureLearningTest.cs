@@ -147,11 +147,11 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
 
                 // Do k-means clustering
                 string pathToClusterCsvFile = Path.Combine(resultDir, "ClusterCentroids" + i.ToString() + ".csv");
-                var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Item2, numberOfClusters, pathToClusterCsvFile);
+                var clusteringOutput = KmeansClustering.Clustering(whitenedSpectrogram.Reversion, numberOfClusters, pathToClusterCsvFile);
                 // var clusteringOutput = KmeansClustering.Clustering(patchMatrix, noOfClusters, pathToClusterCsvFile);
 
                 // sorting clusters based on size and output it to a csv file
-                Dictionary<int, double> clusterIdSize = clusteringOutput.Item2;
+                Dictionary<int, double> clusterIdSize = clusteringOutput.ClusterIdSize;
                 int[] sortOrder = KmeansClustering.SortClustersBasedOnSize(clusterIdSize);
 
                 // Write cluster ID and size to a CSV file
@@ -159,7 +159,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 Csv.WriteToCsv(pathToClusterSizeCsvFile.ToFileInfo(), clusterIdSize);
 
                 // Draw cluster image directly from clustering output
-                List<KeyValuePair<int, double[]>> list = clusteringOutput.Item1.ToList();
+                List<KeyValuePair<int, double[]>> list = clusteringOutput.ClusterIdCentroid.ToList();
                 double[][] centroids = new double[list.Count][];
 
                 for (int j = 0; j < list.Count; j++)
@@ -168,7 +168,7 @@ namespace Acoustics.Test.AudioAnalysisTools.DSP
                 }
 
                 allBandsCentroids.Add(centroids);
-                allClusteringOutput.Add(clusteringOutput.Item3);
+                allClusteringOutput.Add(clusteringOutput.Clusters);
 
                 List<double[,]> allCentroids = new List<double[,]>();
                 for (int k = 0; k < centroids.Length; k++)
